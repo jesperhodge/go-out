@@ -18,6 +18,24 @@ export interface PlacesAutocompleteServiceSuggestion {
   label: string;
 }
 
+interface Participant {
+  id: string;
+  name: string;
+}
+
+interface GatherLocation {
+  googleId: string;
+  lat: number;
+  lng: number;
+}
+
+interface Gather {
+  id: string;
+  name: string;
+  location: GatherLocation;
+  participants: Participant[];
+}
+
 const maxNumberOfSuggestions = 5;
 
 const PlacesAutocompleteService: FunctionComponent<
@@ -38,6 +56,9 @@ const PlacesAutocompleteService: FunctionComponent<
   const autocompleteService = useAutocompleteService();
   const placesService = usePlacesService();
 
+  const [closeGathers, setCloseGathers] = useState<Gather[]>([]);
+  const [selectedGather, setSelectedGather] = useState<Gather | null>(null);
+
   // Update the user input value
   const handleInputChange = (event: ChangeEvent<HTMLInputElement>) => {
     setInputValue(event.target.value);
@@ -51,6 +72,16 @@ const PlacesAutocompleteService: FunctionComponent<
       setSuggestionsAreVisible(true);
     }, 300);
   };
+
+  const getGather = async (googlePlace: google.maps.places.PlaceResult) => {
+    // make a request to the backend with the place id, lat, and lng. Server will return a gather if one exists
+    const response = await fetch(
+      `/api/gathers?googleId=${googlePlace.place_id}&lat=${googlePlace.geometry?.location?.lat()}&lng=${googlePlace.geometry?.location?.lng()}`
+    );
+    const data = await response.json();
+    return data;
+  }
+    
 
   // Handle suggestion selection
   const selectSuggestion = (
@@ -77,6 +108,11 @@ const PlacesAutocompleteService: FunctionComponent<
         }
 
         setSelectedPlace(placeResult);
+        const gather = getGather(placeResult);
+        if (gather(placeResult)) {
+          setSelectedGather(gather(placeResult));
+        }
+
         console.log('placeResult: ', placeResult);
 
         // Get position of the suggestion to move map
@@ -124,6 +160,11 @@ const PlacesAutocompleteService: FunctionComponent<
     }
   }, [inputValue]);
 
+  function isGather(place: google.maps.places.PlaceResult): place is Gather {
+    // check if selected place google place id is selectedGather id
+    return selectedGather?.location?.googleId === place.place_id;
+  }
+
   return (
     <>
       <label htmlFor="places-search-autocomplete">Search for a location:</label>
@@ -157,13 +198,11 @@ const PlacesAutocompleteService: FunctionComponent<
           ))}
         </ul>
       )}
-      {selectedPlace && (
-        <div className="selected-place-box">
-          <h4>{selectedPlace?.name}</h4>
-          <p>{selectedPlace?.formatted_address}</p>
-          {/* You can add more details here */}
-        </div>
-      )}
+      <div className="app-box">
+        <h4>{selectedPlace?.name}</h4>
+        <p>{selectedPlace?.formatted_address}</p>
+        {selectedPlace && (isGather(selectedPlace) ? (<button onClick={() => joinGather(selectedPlace)}>Join</button>) : (<button onClick={() => createGather(selectedPlace)}>Create</button>) )}
+      </div>
     </>
   );
 };
