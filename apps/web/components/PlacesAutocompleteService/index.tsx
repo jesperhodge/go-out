@@ -32,6 +32,7 @@ const PlacesAutocompleteService: FunctionComponent<
   >([]);
   const [suggestionsAreVisible, setSuggestionsAreVisible] =
     useState<boolean>(false);
+  const [selectedPlace, setSelectedPlace] = useState<google.maps.places.PlaceResult | null>(null)
 
   const map = useGoogleMap();
   const autocompleteService = useAutocompleteService();
@@ -74,6 +75,9 @@ const PlacesAutocompleteService: FunctionComponent<
         ) {
           return;
         }
+
+        setSelectedPlace(placeResult);
+        console.log('placeResult: ', placeResult);
 
         // Get position of the suggestion to move map
         const position = placeResult.geometry?.location;
@@ -152,6 +156,13 @@ const PlacesAutocompleteService: FunctionComponent<
             </li>
           ))}
         </ul>
+      )}
+      {selectedPlace && (
+        <div className="selected-place-box">
+          <h4>{selectedPlace?.name}</h4>
+          <p>{selectedPlace?.formatted_address}</p>
+          {/* You can add more details here */}
+        </div>
       )}
     </>
   );
