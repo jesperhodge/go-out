@@ -1,0 +1,186 @@
+openapi: 3.0.0
+info:
+  title: Gather API
+  description: API for managing gathers
+  version: 1.0.0
+servers:
+- url: /
+paths:
+  /api/gathers:
+    get:
+      summary: Get Gather by Google Place
+      operationId: getGatherByGooglePlace
+      parameters:
+      - name: googleId
+        in: query
+        description: Google place ID
+        required: false
+        style: form
+        explode: true
+        schema:
+          type: string
+      - name: lat
+        in: query
+        description: Latitude of the location
+        required: false
+        style: form
+        explode: true
+        schema:
+          type: number
+          format: float
+      - name: lng
+        in: query
+        description: Longitude of the location
+        required: false
+        style: form
+        explode: true
+        schema:
+          type: number
+          format: float
+      responses:
+        "200":
+          description: Successful operation
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Gather'
+      x-swagger-router-controller: Default
+    post:
+      summary: Create a new Gather
+      operationId: createGather
+      parameters:
+      - name: googleId
+        in: query
+        description: Google place ID
+        required: true
+        style: form
+        explode: true
+        schema:
+          type: string
+      - name: lat
+        in: query
+        description: Latitude of the location
+        required: true
+        style: form
+        explode: true
+        schema:
+          type: number
+          format: float
+      - name: lng
+        in: query
+        description: Longitude of the location
+        required: true
+        style: form
+        explode: true
+        schema:
+          type: number
+          format: float
+      responses:
+        "201":
+          description: Gather created
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Gather'
+      x-swagger-router-controller: Default
+  /api/gathers/{gatherId}/participants:
+    post:
+      summary: Add a new participant to the Gather
+      operationId: addParticipantToGather
+      parameters:
+      - name: gatherId
+        in: path
+        description: ID of the Gather to which the participant will be added
+        required: true
+        style: simple
+        explode: false
+        schema:
+          type: string
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/Participant'
+        required: true
+      responses:
+        "201":
+          description: Participant added to the gather
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Participant'
+      x-swagger-router-controller: Default
+components:
+  schemas:
+    PlacesAutocompleteServiceSuggestion:
+      required:
+      - id
+      - label
+      type: object
+      properties:
+        id:
+          type: string
+        label:
+          type: string
+    Participant:
+      required:
+      - id
+      - name
+      type: object
+      properties:
+        id:
+          type: string
+        name:
+          type: string
+      example:
+        name: name
+        id: id
+    GatherLocation:
+      required:
+      - googleId
+      - lat
+      - lng
+      type: object
+      properties:
+        googleId:
+          type: string
+        lat:
+          type: number
+          format: float
+        lng:
+          type: number
+          format: float
+      example:
+        googleId: googleId
+        lng: 6.0274563
+        lat: 0.8008282
+    Gather:
+      required:
+      - id
+      - location
+      - name
+      - participants
+      type: object
+      properties:
+        id:
+          type: string
+        name:
+          type: string
+        location:
+          $ref: '#/components/schemas/GatherLocation'
+        participants:
+          type: array
+          items:
+            $ref: '#/components/schemas/Participant'
+      example:
+        name: name
+        location:
+          googleId: googleId
+          lng: 6.0274563
+          lat: 0.8008282
+        id: id
+        participants:
+        - name: name
+          id: id
+        - name: name
+          id: id
