@@ -1,0 +1,13 @@
+version: '3.0'
+
+services:
+  openapi_mock:
+    container_name: openapi_mock
+    image: muonsoft/openapi-mock
+    volumes:
+    - ./openapi:/etc/openapi
+    environment:
+      OPENAPI_MOCK_SPECIFICATION_URL: '/etc/openapi/openapi.yaml'
+      OPENAPI_MOCK_CORS_ENABLED: 1
+    ports:
+      - "8080:8080"
