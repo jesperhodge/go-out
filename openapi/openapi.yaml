@@ -120,8 +120,10 @@ components:
       properties:
         id:
           type: string
+          format: uuid
         label:
           type: string
+          maxLength: 20
     Participant:
       required:
       - id
@@ -130,8 +132,10 @@ components:
       properties:
         id:
           type: string
+          format: uuid
         name:
           type: string
+          maxLength: 20
       example:
         name: name
         id: id
@@ -144,6 +148,7 @@ components:
       properties:
         googleId:
           type: string
+          format: uuid
         lat:
           type: number
           format: float
@@ -167,6 +172,7 @@ components:
           format: uuid
         name:
           type: string
+          maxLength: 20
         location:
           $ref: '#/components/schemas/GatherLocation'
         participants:
