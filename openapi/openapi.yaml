@@ -75,6 +75,12 @@ paths:
         schema:
           type: number
           format: float
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/Gather'
+        required: true
       responses:
         "201":
           description: Gather created
@@ -114,7 +120,6 @@ components:
   schemas:
     PlacesAutocompleteServiceSuggestion:
       required:
-      - id
       - label
       type: object
       properties:
@@ -126,7 +131,6 @@ components:
           maxLength: 20
     Participant:
       required:
-      - id
       - name
       type: object
       properties:
@@ -141,7 +145,6 @@ components:
         id: id
     GatherLocation:
       required:
-      - googleId
       - lat
       - lng
       type: object
@@ -161,7 +164,6 @@ components:
         lat: 0.8008282
     Gather:
       required:
-      - id
       - location
       - name
       - participants

@@ -19,25 +19,27 @@ export interface PlacesAutocompleteServiceSuggestion {
 }
 
 interface Participant {
-  id: string;
+  id?: string;
   name: string;
 }
 
 interface GatherLocation {
-  googleId: string;
+  googleId?: string;
   lat: number;
   lng: number;
 }
 
 interface Gather {
-  id: string;
+  id?: string;
   name: string;
   location: GatherLocation;
   participants: Participant[];
 }
 
 const maxNumberOfSuggestions = 5;
-
+const user: Participant = {
+  name: "Jesper Hodge",
+}
 const baseUrl = "http://localhost:8080";
 
 const PlacesAutocompleteService: FunctionComponent<
@@ -113,7 +115,7 @@ const PlacesAutocompleteService: FunctionComponent<
       .map(key => `${key}=${encodeURIComponent(params[key])}`)
       .join("&");
   };
-  
+
   const getGather = async (googlePlace: google.maps.places.PlaceResult) => {
     const params = {
       googleId: googlePlace.place_id,
@@ -125,7 +127,7 @@ const PlacesAutocompleteService: FunctionComponent<
     const data = await response.json();
     return data;
   };
-  
+
   const createGather = async (googlePlace: google.maps.places.PlaceResult) => {
     const params = {
       googleId: googlePlace.place_id,
@@ -133,13 +135,25 @@ const PlacesAutocompleteService: FunctionComponent<
       lng: googlePlace.geometry?.location?.lng(),
     };
     const queryString = encodeParams(params);
+    const newGather: Gather = {
+      name: googlePlace.name,
+      location: {
+        googleId: googlePlace.place_id,
+        lat: googlePlace.geometry?.location?.lat() || 0,
+        lng: googlePlace.geometry?.location?.lng() || 0,
+      },
+      participants: [user],
+    }
+
     const response = await fetch(`${baseUrl}/api/gathers?${queryString}`, {
       method: "POST",
+      body: JSON.stringify(newGather),
     });
     const data = await response.json();
+
     return data;
   };
-  
+
   const joinGather = async (gatherId: string, newParticipant: Participant) => {
     const response = await fetch(
       `${baseUrl}/api/gathers/${gatherId}/participants`,
@@ -151,7 +165,7 @@ const PlacesAutocompleteService: FunctionComponent<
     const data = await response.json();
     return data;
   };
-  
+
 
   // Handle suggestion selection
   const selectSuggestion = (
@@ -201,10 +215,12 @@ const PlacesAutocompleteService: FunctionComponent<
     return selectedGather?.location?.googleId === place.place_id;
   }
 
-  const newParticipant = {
-    id: "123",
-    name: "John Doe",
-  };
+  const handleCreate = async () => {
+    if (selectedPlace) {
+      const gather = await createGather(selectedPlace);
+      setSelectedGather(gather);
+    }
+  }
 
   return (
     <>
@@ -234,27 +250,36 @@ const PlacesAutocompleteService: FunctionComponent<
               key={suggestion.id}
               onClick={() => selectSuggestion(suggestion)}
               id={suggestion.id}
-              role="option"
             >
               <span>{suggestion.label}</span>
             </li>
           ))}
         </ul>
       )}
-      <div className="app-box">
-        <h4>{selectedPlace?.name}</h4>
-        <p>{selectedPlace?.formatted_address}</p>
-        {selectedPlace &&
-          (isGather(selectedPlace) ? (
-            <button
-              onClick={() => joinGather(selectedPlace.id, newParticipant)}
-            >
-              Join
-            </button>
-          ) : (
-            <button onClick={() => createGather(selectedPlace)}>Create</button>
-          ))}
-      </div>
+      <Card className="w-100 h-50">
+        <CardBody>
+        <div>
+          <b>{selectedPlace?.name}</b>
+          <p>{selectedPlace?.formatted_address}</p>
+          {selectedPlace &&
+            // (isGather(selectedPlace) ? (
+            //   <button
+            //     onClick={() => joinGather(selectedPlace.id, newParticipant)}
+            //   >
+            //     Join
+            //   </button>
+            // ) : (
+            <button onClick={handleCreate}>Create</button>
+          }
+        </div>
+        {selectedGather && (
+          <>
+            <b>selectedGather</b>
+            <p>{selectedGather?.name}</p>
+          </>
+        )}
+        </CardBody>
+      </Card>
     </>
   );
 };
