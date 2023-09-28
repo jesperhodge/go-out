@@ -256,8 +256,7 @@ const PlacesAutocompleteService: FunctionComponent<
           ))}
         </ul>
       )}
-      <Card className="w-100 h-50">
-        <CardBody>
+      <div className="app-box">
         <div>
           <b>{selectedPlace?.name}</b>
           <p>{selectedPlace?.formatted_address}</p>
@@ -278,8 +277,7 @@ const PlacesAutocompleteService: FunctionComponent<
             <p>{selectedGather?.name}</p>
           </>
         )}
-        </CardBody>
-      </Card>
+    </div>
     </>
   );
 };
