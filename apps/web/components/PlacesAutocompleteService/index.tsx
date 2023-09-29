@@ -25,13 +25,15 @@ interface Participant {
 
 interface GatherLocation {
   googleId?: string;
+  name?: string;
+  formattedAddress?: string;
   lat: number;
   lng: number;
 }
 
 interface Gather {
   id?: string;
-  name: string;
+  name?: string;
   location: GatherLocation;
   participants: Participant[];
 }
@@ -287,7 +289,8 @@ const PlacesAutocompleteService: FunctionComponent<
         {selectedGather && (
           <div>
             <b>selectedGather</b>
-            <p>Name: {selectedGather?.name}</p>
+            <p>Name: {selectedGather?.name || selectedGather?.location?.name}</p>
+            <p>Location: {selectedGather?.location?.formattedAddress}</p>
             <b>Participants</b>
             {selectedGather?.participants.map((participant, i) => (
               <p key={`gather-participants-${participant?.name}-${i}`}>{participant.name}</p>

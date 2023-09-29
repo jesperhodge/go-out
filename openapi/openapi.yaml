@@ -149,6 +149,12 @@ components:
       - lng
       type: object
       properties:
+        name: 
+          type: string
+          maxLength: 20
+        formattedAddress:
+          type: string
+          maxLength: 100
         googleId:
           type: string
           format: uuid
@@ -159,6 +165,8 @@ components:
           type: number
           format: float
       example:
+        name: Heidelberg
+        formattedAddress: Heidelberg, Germany
         googleId: googleId
         lng: 6.0274563
         lat: 0.8008282
@@ -182,14 +190,16 @@ components:
           items:
             $ref: '#/components/schemas/Participant'
       example:
-        name: name
+        name: Meeting in Heidelberg
         location:
           googleId: googleId
+          name: Heidelberg
+          formattedAddress: Heidelberg, Germany
           lng: 6.0274563
           lat: 0.8008282
         id: id
         participants:
-        - name: name
+        - name: Jan Böhmermann
           id: id
-        - name: name
+        - name: Bully Herbig
           id: id
