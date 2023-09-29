@@ -194,7 +194,10 @@ const PlacesAutocompleteService: FunctionComponent<
         setSelectedPlace(placeResult);
         const gather = await getGather(placeResult);
         if (gather) {
+          window.alert(JSON.stringify(gather));
           setSelectedGather(gather);
+        } else {
+          setSelectedGather(null);
         }
 
         console.log("placeResult: ", placeResult);
@@ -220,6 +223,17 @@ const PlacesAutocompleteService: FunctionComponent<
       const gather = await createGather(selectedPlace);
       setSelectedGather(gather);
     }
+  }
+
+  const handleJoin = async () => {
+    if (!selectedGather?.id || !user) return;
+
+    await joinGather(selectedGather.id, user);
+
+    setSelectedGather({
+      ...selectedGather,
+      participants: [...selectedGather?.participants, user],
+    });
   }
 
   return (
@@ -256,28 +270,37 @@ const PlacesAutocompleteService: FunctionComponent<
           ))}
         </ul>
       )}
-      <div className="app-box">
+      <div className="app-box flex flex-row justify-center gap-8">
         <div>
           <b>{selectedPlace?.name}</b>
           <p>{selectedPlace?.formatted_address}</p>
-          {selectedPlace &&
-            // (isGather(selectedPlace) ? (
-            //   <button
-            //     onClick={() => joinGather(selectedPlace.id, newParticipant)}
-            //   >
-            //     Join
-            //   </button>
-            // ) : (
-            <button onClick={handleCreate}>Create</button>
+          {/* {!selectedGather && selectedPlace && */}
+          {true &&
+            <button
+              className="inline-flex justify-center rounded-lg text-sm font-semibold py-3 px-4 bg-slate-900 text-white hover:bg-slate-700"
+              onClick={handleCreate}
+            >
+              Create
+            </button>
           }
         </div>
         {selectedGather && (
-          <>
+          <div>
             <b>selectedGather</b>
-            <p>{selectedGather?.name}</p>
-          </>
+            <p>Name: {selectedGather?.name}</p>
+            <b>Participants</b>
+            {selectedGather?.participants.map((participant, i) => (
+              <p key={`gather-participants-${participant?.name}-${i}`}>{participant.name}</p>
+            ))}
+            <button
+              className="inline-flex justify-center rounded-lg text-sm font-semibold py-3 px-4 bg-slate-900 text-white hover:bg-slate-700"
+              onClick={handleJoin}
+            >
+              Join
+            </button>
+          </div>
         )}
-    </div>
+      </div>
     </>
   );
 };
