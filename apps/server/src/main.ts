@@ -1,10 +1,16 @@
 import { NestFactory } from '@nestjs/core';
 import { AppModule } from './app.module';
 import { NestExpressApplication } from '@nestjs/platform-express/interfaces';
+import { ValidationPipe } from '@nestjs/common';
 
-async function bootstrap() {
-  const app = await NestFactory.create<NestExpressApplication>(AppModule);
-  await app.listen(process.env.PORT || 4000);
+function printRoutes(
+  app: NestExpressApplication<
+    import('node:http').Server<
+      typeof import('node:http').IncomingMessage,
+      typeof import('node:http').ServerResponse
+    >
+  >,
+) {
   const server: any = app.getHttpServer();
   const router = server._events.request._router;
 
@@ -21,5 +27,14 @@ async function bootstrap() {
     })
     .filter((item: any) => item !== undefined);
   console.log(availableRoutes);
+}
+
+async function bootstrap() {
+  const app = await NestFactory.create<NestExpressApplication>(AppModule);
+  app.useGlobalPipes(new ValidationPipe({ transform: true }));
+
+  await app.listen(process.env.PORT || 4000);
+
+  printRoutes(app);
 }
 bootstrap();

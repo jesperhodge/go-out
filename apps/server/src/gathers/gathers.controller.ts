@@ -1,10 +1,16 @@
-import { Controller, Get, Param, Post } from '@nestjs/common';
+import { Body, Query, Controller, Get, Param, Post } from '@nestjs/common';
 import { Gather } from '@customTypes/gather';
+import {
+  CreateGatherDto,
+  ListAllEntities,
+  JoinGatherDto,
+} from './dto/gathers.dto';
 
 @Controller('gathers')
 export class GathersController {
   @Get()
-  findAll(): Promise<Gather[]> {
+  findAll(@Query() query: ListAllEntities): Promise<Gather[]> {
+    console.log(query);
     return new Promise(() => [
       {
         id: '1',
@@ -50,6 +56,7 @@ export class GathersController {
 
   @Post()
   create(@Body() createGatherDto: CreateGatherDto): Promise<Gather> {
+    console.log(createGatherDto);
     return new Promise(() => ({
       id: '1',
       name: 'Gather 1',
@@ -69,12 +76,9 @@ export class GathersController {
     }));
   }
 
-  @Post(':id/join')
-  join(
-    @Param() params: { id: string },
-    addParticipantDto: AddParticipantDto,
-  ): Promise<Gather> {
-    console.log(params.id);
+  @Post('join')
+  join(@Body() joinGatherDto: JoinGatherDto): Promise<Gather> {
+    console.log(joinGatherDto);
     return new Promise(() => ({
       id: '1',
       name: 'Gather 1',
