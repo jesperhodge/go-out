@@ -49,7 +49,7 @@ export class GathersController {
   }
 
   @Post()
-  create(): Promise<Gather> {
+  create(@Body() createGatherDto: CreateGatherDto): Promise<Gather> {
     return new Promise(() => ({
       id: '1',
       name: 'Gather 1',
@@ -70,7 +70,10 @@ export class GathersController {
   }
 
   @Post(':id/join')
-  join(@Param() params: { id: string }): Promise<Gather> {
+  join(
+    @Param() params: { id: string },
+    addParticipantDto: AddParticipantDto,
+  ): Promise<Gather> {
     console.log(params.id);
     return new Promise(() => ({
       id: '1',
