@@ -1,50 +1,36 @@
-import React, {
-  FunctionComponent,
-  ChangeEvent,
-  useState,
-  useRef,
-  useEffect,
-} from "react";
-import {
-  useAutocompleteService,
-  useGoogleMap,
-  usePlacesService,
-} from "@ubilabs/google-maps-react-hooks";
+import React, { FunctionComponent, ChangeEvent, useState, useRef, useEffect } from 'react'
+import { useAutocompleteService, useGoogleMap, usePlacesService } from '@ubilabs/google-maps-react-hooks'
 
-import "./index.css";
+import { Gather, Participant, PlacesAutocompleteServiceSuggestion } from '@customTypes/gather'
 
-const maxNumberOfSuggestions = 5;
+import './index.css'
+
+const maxNumberOfSuggestions = 5
 const user: Participant = {
-  name: "Jesper Hodge",
+  name: 'Jesper Hodge',
 }
-const baseUrl = "http://localhost:8080";
+const baseUrl = 'http://localhost:8080'
 
-const PlacesAutocompleteService: FunctionComponent<
-  Record<string, unknown>
-> = () => {
-  const inputRef = useRef<HTMLInputElement | null>(null);
-  const timeout = useRef<NodeJS.Timeout | null>(null);
+const PlacesAutocompleteService: FunctionComponent<Record<string, unknown>> = () => {
+  const inputRef = useRef<HTMLInputElement | null>(null)
+  const timeout = useRef<NodeJS.Timeout | null>(null)
 
-  const [inputValue, setInputValue] = useState<string>("");
-  const [suggestions, setSuggestions] = useState<
-    Array<PlacesAutocompleteServiceSuggestion>
-  >([]);
-  const [suggestionsAreVisible, setSuggestionsAreVisible] =
-    useState<boolean>(false);
-  const [selectedPlace, setSelectedPlace] =
-    useState<google.maps.places.PlaceResult | null>(null);
+  const [inputValue, setInputValue] = useState<string>('')
+  const [suggestions, setSuggestions] = useState<Array<PlacesAutocompleteServiceSuggestion>>([])
+  const [suggestionsAreVisible, setSuggestionsAreVisible] = useState<boolean>(false)
+  const [selectedPlace, setSelectedPlace] = useState<google.maps.places.PlaceResult | null>(null)
 
-  const map = useGoogleMap();
-  const autocompleteService = useAutocompleteService();
-  const placesService = usePlacesService();
+  const map = useGoogleMap()
+  const autocompleteService = useAutocompleteService()
+  const placesService = usePlacesService()
 
-  const [closeGathers, setCloseGathers] = useState<Gather[]>([]);
-  const [selectedGather, setSelectedGather] = useState<Gather | null>(null);
+  const [closeGathers, setCloseGathers] = useState<Gather[]>([])
+  const [selectedGather, setSelectedGather] = useState<Gather | null>(null)
 
   // Update the user input value
   const handleInputChange = (event: ChangeEvent<HTMLInputElement>) => {
-    const newInputValue = event.target.value;
-    setInputValue(newInputValue);
+    const newInputValue = event.target.value
+    setInputValue(newInputValue)
 
     if (newInputValue.length >= 2) {
       autocompleteService?.getPlacePredictions(
@@ -53,65 +39,60 @@ const PlacesAutocompleteService: FunctionComponent<
         },
         (
           predictions: google.maps.places.AutocompletePrediction[] | null,
-          status: google.maps.places.PlacesServiceStatus
+          status: google.maps.places.PlacesServiceStatus,
         ) => {
-          if (
-            status !== google.maps.places.PlacesServiceStatus.OK ||
-            !predictions
-          ) {
-            return;
+          if (status !== google.maps.places.PlacesServiceStatus.OK || !predictions) {
+            return
           }
 
-          const autocompleteSuggestions = predictions
-            .slice(0, maxNumberOfSuggestions)
-            .map((prediction) => ({
-              id: prediction.place_id,
-              label: prediction.description,
-            }));
+          const autocompleteSuggestions = predictions.slice(0, maxNumberOfSuggestions).map((prediction) => ({
+            id: prediction.place_id,
+            label: prediction.description,
+          }))
 
           // Update suggestions for dropdown suggestions list
-          setSuggestions(autocompleteSuggestions);
-        }
-      );
+          setSuggestions(autocompleteSuggestions)
+        },
+      )
     } else {
-      setSuggestions([]);
+      setSuggestions([])
     }
 
     if (timeout.current) {
-      clearTimeout(timeout.current);
+      clearTimeout(timeout.current)
     }
 
     // Show dropdown with a little delay
     timeout.current = setTimeout(() => {
-      setSuggestionsAreVisible(true);
-    }, 300);
-  };
+      setSuggestionsAreVisible(true)
+    }, 300)
+  }
 
   const encodeParams = (params: Record<string, any>): string => {
     return Object.keys(params)
-      .map(key => `${key}=${encodeURIComponent(params[key])}`)
-      .join("&");
-  };
+      .map((key) => `${key}=${encodeURIComponent(params[key])}`)
+      .join('&')
+  }
 
   const getGather = async (googlePlace: google.maps.places.PlaceResult) => {
     const params = {
       googleId: googlePlace.place_id,
       lat: googlePlace.geometry?.location?.lat(),
       lng: googlePlace.geometry?.location?.lng(),
-    };
-    const queryString = encodeParams(params);
-    const response = await fetch(`${baseUrl}/api/gathers?${queryString}`);
-    const data = await response.json();
-    return data;
-  };
+    }
+    const queryString = encodeParams(params)
+    const response = await fetch(`${baseUrl}/api/gathers?${queryString}`)
+    const data = await response.json()
+    return data
+  }
 
   const createGather = async (googlePlace: google.maps.places.PlaceResult) => {
     const params = {
       googleId: googlePlace.place_id,
       lat: googlePlace.geometry?.location?.lat(),
       lng: googlePlace.geometry?.location?.lng(),
-    };
-    const queryString = encodeParams(params);
+    }
+    const queryString = encodeParams(params)
     const newGather: Gather = {
       name: googlePlace.name,
       location: {
@@ -122,95 +103,83 @@ const PlacesAutocompleteService: FunctionComponent<
       participants: [user],
     }
 
-    const response = await fetch(`${baseUrl}/api/gathers?${queryString}`, {
-      method: "POST",
+    const response = await fetch(`${baseUrl}/api/gathers`, {
+      method: 'POST',
       body: JSON.stringify(newGather),
-    });
-    const data = await response.json();
+    })
+    const data = await response.json()
 
-    return data;
-  };
+    return data
+  }
 
   const joinGather = async (gatherId: string, newParticipant: Participant) => {
-    const response = await fetch(
-      `${baseUrl}/api/gathers/${gatherId}/participants`,
-      {
-        method: "POST",
-        body: JSON.stringify(newParticipant),
-      }
-    );
-    const data = await response.json();
-    return data;
-  };
-
+    const response = await fetch(`${baseUrl}/api/gathers/${gatherId}/participants`, {
+      method: 'POST',
+      body: JSON.stringify(newParticipant),
+    })
+    const data = await response.json()
+    return data
+  }
 
   // Handle suggestion selection
-  const selectSuggestion = (
-    suggestion: PlacesAutocompleteServiceSuggestion
-  ) => {
-    inputRef.current?.focus();
-    setInputValue(suggestion.label);
+  const selectSuggestion = (suggestion: PlacesAutocompleteServiceSuggestion) => {
+    inputRef.current?.focus()
+    setInputValue(suggestion.label)
 
     // Close dropdown
-    setSuggestionsAreVisible(false);
+    setSuggestionsAreVisible(false)
 
     // Get the location from Places Service of the selected place and zoom to it
     placesService?.getDetails(
       { placeId: suggestion.id },
-      async (
-        placeResult: google.maps.places.PlaceResult | null,
-        status: google.maps.places.PlacesServiceStatus
-      ) => {
-        if (
-          status !== google.maps.places.PlacesServiceStatus.OK ||
-          !placeResult
-        ) {
-          return;
+      async (placeResult: google.maps.places.PlaceResult | null, status: google.maps.places.PlacesServiceStatus) => {
+        if (status !== google.maps.places.PlacesServiceStatus.OK || !placeResult) {
+          return
         }
 
-        setSelectedPlace(placeResult);
-        const gather = await getGather(placeResult);
+        setSelectedPlace(placeResult)
+        const gather = await getGather(placeResult)
         if (gather) {
-          window.alert(JSON.stringify(gather));
-          setSelectedGather(gather);
+          window.alert(JSON.stringify(gather))
+          setSelectedGather(gather)
         } else {
-          setSelectedGather(null);
+          setSelectedGather(null)
         }
 
-        console.log("placeResult: ", placeResult);
+        console.log('placeResult: ', placeResult)
 
         // Get position of the suggestion to move map
-        const position = placeResult.geometry?.location;
+        const position = placeResult.geometry?.location
 
         if (map && position) {
-          map.setZoom(14);
-          map.panTo(position);
+          map.setZoom(14)
+          map.panTo(position)
         }
-      }
-    );
-  };
+      },
+    )
+  }
 
   function isGather(place: google.maps.places.PlaceResult): place is Gather {
     // check if selected place google place id is selectedGather id
-    return selectedGather?.location?.googleId === place.place_id;
+    return selectedGather?.location?.googleId === place.place_id
   }
 
   const handleCreate = async () => {
     if (selectedPlace) {
-      const gather = await createGather(selectedPlace);
-      setSelectedGather(gather);
+      const gather = await createGather(selectedPlace)
+      setSelectedGather(gather)
     }
   }
 
   const handleJoin = async () => {
-    if (!selectedGather?.id || !user) return;
+    if (!selectedGather?.id || !user) return
 
-    await joinGather(selectedGather.id, user);
+    await joinGather(selectedGather.id, user)
 
     setSelectedGather({
       ...selectedGather,
       participants: [...selectedGather?.participants, user],
-    });
+    })
   }
 
   return (
@@ -230,18 +199,9 @@ const PlacesAutocompleteService: FunctionComponent<
       />
 
       {suggestionsAreVisible && (
-        <ul
-          className="suggestions"
-          id="search-suggestions"
-          role="listbox"
-          aria-label="Suggested locations:"
-        >
+        <ul className="suggestions" id="search-suggestions" role="listbox" aria-label="Suggested locations:">
           {suggestions.map((suggestion) => (
-            <li
-              key={suggestion.id}
-              onClick={() => selectSuggestion(suggestion)}
-              id={suggestion.id}
-            >
+            <li key={suggestion.id} onClick={() => selectSuggestion(suggestion)} id={suggestion.id}>
               <span>{suggestion.label}</span>
             </li>
           ))}
@@ -252,14 +212,14 @@ const PlacesAutocompleteService: FunctionComponent<
           <b>{selectedPlace?.name}</b>
           <p>{selectedPlace?.formatted_address}</p>
           {/* {!selectedGather && selectedPlace && */}
-          {true &&
+          {true && (
             <button
               className="inline-flex justify-center rounded-lg text-sm font-semibold py-3 px-4 bg-slate-900 text-white hover:bg-slate-700"
               onClick={handleCreate}
             >
               Create
             </button>
-          }
+          )}
         </div>
         {selectedGather && (
           <div>
@@ -280,7 +240,7 @@ const PlacesAutocompleteService: FunctionComponent<
         )}
       </div>
     </>
-  );
-};
+  )
+}
 
-export default PlacesAutocompleteService;
+export default PlacesAutocompleteService

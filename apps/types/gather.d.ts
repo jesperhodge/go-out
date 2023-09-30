@@ -3,12 +3,12 @@ export interface PlacesAutocompleteServiceSuggestion {
   label: string;
 }
 
-interface Participant {
+export interface Participant {
   id?: string;
   name: string;
 }
 
-interface GatherLocation {
+export interface GatherLocation {
   googleId?: string;
   name?: string;
   formattedAddress?: string;
@@ -16,7 +16,7 @@ interface GatherLocation {
   lng: number;
 }
 
-interface Gather {
+export interface Gather {
   id?: string;
   name?: string;
   location: GatherLocation;
