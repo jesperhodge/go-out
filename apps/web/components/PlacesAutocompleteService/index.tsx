@@ -9,7 +9,7 @@ const maxNumberOfSuggestions = 5
 const user: Participant = {
   name: 'Jesper Hodge',
 }
-const baseUrl = 'http://localhost:8080'
+const baseUrl = 'http://localhost:4000'
 
 const PlacesAutocompleteService: FunctionComponent<Record<string, unknown>> = () => {
   const inputRef = useRef<HTMLInputElement | null>(null)
@@ -82,7 +82,9 @@ const PlacesAutocompleteService: FunctionComponent<Record<string, unknown>> = ()
     }
     const queryString = encodeParams(params)
     const response = await fetch(`${baseUrl}/api/gathers?${queryString}`)
+    console.log('getGather response: ', response)
     const data = await response.json()
+    console.log('getGather data: ', data)
     return data
   }
 
@@ -107,7 +109,9 @@ const PlacesAutocompleteService: FunctionComponent<Record<string, unknown>> = ()
       method: 'POST',
       body: JSON.stringify(newGather),
     })
+    console.log('createGather response: ', response)
     const data = await response.json()
+    console.log('createGather data: ', data)
 
     return data
   }
@@ -117,7 +121,9 @@ const PlacesAutocompleteService: FunctionComponent<Record<string, unknown>> = ()
       method: 'POST',
       body: JSON.stringify(newParticipant),
     })
+    console.log('joinGather response: ', response)
     const data = await response.json()
+    console.log('joinGather data: ', data)
     return data
   }
 
@@ -227,7 +233,7 @@ const PlacesAutocompleteService: FunctionComponent<Record<string, unknown>> = ()
             <p>Name: {selectedGather?.name || selectedGather?.location?.name}</p>
             <p>Location: {selectedGather?.location?.formattedAddress}</p>
             <b>Participants</b>
-            {selectedGather?.participants.map((participant, i) => (
+            {selectedGather?.participants?.map((participant, i) => (
               <p key={`gather-participants-${participant?.name}-${i}`}>{participant.name}</p>
             ))}
             <button
