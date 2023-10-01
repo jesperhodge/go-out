@@ -81,7 +81,7 @@ const PlacesAutocompleteService: FunctionComponent<Record<string, unknown>> = ()
       lng: googlePlace.geometry?.location?.lng(),
     }
     const queryString = encodeParams(params)
-    const response = await fetch(`${baseUrl}/api/gathers?${queryString}`)
+    const response = await fetch(`${baseUrl}/gathers?${queryString}`)
     console.log('getGather response: ', response)
     const data = await response.json()
     console.log('getGather data: ', data)
@@ -105,7 +105,7 @@ const PlacesAutocompleteService: FunctionComponent<Record<string, unknown>> = ()
       participants: [user],
     }
 
-    const response = await fetch(`${baseUrl}/api/gathers`, {
+    const response = await fetch(`${baseUrl}/gathers`, {
       method: 'POST',
       body: JSON.stringify(newGather),
     })
@@ -117,7 +117,7 @@ const PlacesAutocompleteService: FunctionComponent<Record<string, unknown>> = ()
   }
 
   const joinGather = async (gatherId: string, newParticipant: Participant) => {
-    const response = await fetch(`${baseUrl}/api/gathers/${gatherId}/participants`, {
+    const response = await fetch(`${baseUrl}/gathers/${gatherId}/participants`, {
       method: 'POST',
       body: JSON.stringify(newParticipant),
     })

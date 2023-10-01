@@ -9,9 +9,9 @@ import {
 @Controller('gathers')
 export class GathersController {
   @Get()
-  findAll(@Query() query: ListAllEntities): Promise<Gather[]> {
+  async findAll(@Query() query: ListAllEntities): Promise<Gather[]> {
     console.log(query);
-    return new Promise(() => [
+    return [
       {
         id: '1',
         name: 'Gather 1',
@@ -29,7 +29,7 @@ export class GathersController {
           },
         ],
       },
-    ]);
+    ];
   }
 
   @Get(':id')
