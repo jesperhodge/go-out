@@ -1,104 +1,53 @@
-import { Body, Query, Controller, Get, Param, Post } from '@nestjs/common';
+import {
+  Body,
+  Query,
+  Controller,
+  Get,
+  Param,
+  Post,
+  NotFoundException,
+} from '@nestjs/common';
 import { Gather } from '@customTypes/gather';
 import {
   CreateGatherDto,
   ListAllEntities,
   JoinGatherDto,
 } from './dto/gathers.dto';
+import { GathersService } from './gathers.service';
 
 @Controller('gathers')
 export class GathersController {
+  constructor(private gathersService: GathersService) {}
+
   @Get()
   async findAll(@Query() query: ListAllEntities): Promise<Gather[]> {
     console.log(query);
-    return [
-      {
-        id: '1',
-        name: 'Gather 1',
-        location: {
-          googleId: '1',
-          name: 'Gather 1',
-          formattedAddress: 'Gather 1',
-          lat: 1,
-          lng: 1,
-        },
-        participants: [
-          {
-            id: '1',
-            name: 'Participant 1',
-          },
-        ],
-      },
-    ];
+    return this.gathersService.findAll();
   }
 
   @Get(':id')
-  async findOne(@Param() params: { id: string }): Promise<Gather> {
+  async findOne(@Param() params: { id: string }): Promise<Gather | undefined> {
     console.log(params.id);
-    return {
-      id: '1',
-      name: 'Gather 1',
-      location: {
-        googleId: '1',
-        name: 'Gather 1',
-        formattedAddress: 'Gather 1',
-        lat: 1,
-        lng: 1,
-      },
-      participants: [
-        {
-          id: '1',
-          name: 'Participant 1',
-        },
-      ],
-    };
+    const gather = this.gathersService.findOne(params.id);
+    if (!gather) throw new NotFoundException();
+
+    return gather;
   }
 
   @Post()
   async create(@Body() createGatherDto: CreateGatherDto): Promise<Gather> {
     console.log(createGatherDto);
-    return {
-      id: '1',
-      name: 'Gather 1',
-      location: {
-        googleId: '1',
-        name: 'Gather 1',
-        formattedAddress: 'Gather 1',
-        lat: 1,
-        lng: 1,
-      },
-      participants: [
-        {
-          id: '1',
-          name: 'Participant 1',
-        },
-      ],
-    };
+
+    return this.gathersService.create(createGatherDto.gather);
   }
 
   @Post('join')
   async join(@Body() joinGatherDto: JoinGatherDto): Promise<Gather> {
     console.log(joinGatherDto);
-    return {
-      id: '1',
-      name: 'Gather 1',
-      location: {
-        googleId: '1',
-        name: 'Gather 1',
-        formattedAddress: 'Gather 1',
-        lat: 1,
-        lng: 1,
-      },
-      participants: [
-        {
-          id: '1',
-          name: 'Participant 1',
-        },
-        {
-          id: '2',
-          name: 'New Participant',
-        },
-      ],
-    };
+
+    return this.gathersService.join(
+      joinGatherDto.gatherId,
+      joinGatherDto.userId,
+    );
   }
 }
