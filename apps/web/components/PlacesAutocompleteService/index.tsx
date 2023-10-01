@@ -7,6 +7,7 @@ import './index.css'
 
 const maxNumberOfSuggestions = 5
 const user: Participant = {
+  id: '1',
   name: 'Jesper Hodge',
 }
 const baseUrl = 'http://localhost:4000'
@@ -89,12 +90,8 @@ const PlacesAutocompleteService: FunctionComponent<Record<string, unknown>> = ()
   }
 
   const createGather = async (googlePlace: google.maps.places.PlaceResult) => {
-    const params = {
-      googleId: googlePlace.place_id,
-      lat: googlePlace.geometry?.location?.lat(),
-      lng: googlePlace.geometry?.location?.lng(),
-    }
-    const queryString = encodeParams(params)
+    console.log('createGather googlePlace: ', googlePlace)
+
     const newGather: Gather = {
       name: googlePlace.name,
       location: {
@@ -107,7 +104,7 @@ const PlacesAutocompleteService: FunctionComponent<Record<string, unknown>> = ()
 
     const response = await fetch(`${baseUrl}/gathers`, {
       method: 'POST',
-      body: JSON.stringify(newGather),
+      body: JSON.stringify({ gather: newGather }),
     })
     console.log('createGather response: ', response)
     const data = await response.json()
@@ -117,9 +114,9 @@ const PlacesAutocompleteService: FunctionComponent<Record<string, unknown>> = ()
   }
 
   const joinGather = async (gatherId: string, newParticipant: Participant) => {
-    const response = await fetch(`${baseUrl}/gathers/${gatherId}/participants`, {
+    const response = await fetch(`${baseUrl}/gathers/join`, {
       method: 'POST',
-      body: JSON.stringify(newParticipant),
+      body: JSON.stringify({ gatherId: gatherId, userId: newParticipant.id }),
     })
     console.log('joinGather response: ', response)
     const data = await response.json()
@@ -144,7 +141,9 @@ const PlacesAutocompleteService: FunctionComponent<Record<string, unknown>> = ()
         }
 
         setSelectedPlace(placeResult)
-        const gather = await getGather(placeResult)
+        const gathers = await getGather(placeResult)
+        const gather = gathers[0]
+
         if (gather) {
           window.alert(JSON.stringify(gather))
           setSelectedGather(gather)
@@ -171,6 +170,7 @@ const PlacesAutocompleteService: FunctionComponent<Record<string, unknown>> = ()
   }
 
   const handleCreate = async () => {
+    console.log('selectedPlace: ', selectedPlace)
     if (selectedPlace) {
       const gather = await createGather(selectedPlace)
       setSelectedGather(gather)

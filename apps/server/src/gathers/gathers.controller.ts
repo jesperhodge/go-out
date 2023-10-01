@@ -33,9 +33,9 @@ export class GathersController {
   }
 
   @Get(':id')
-  findOne(@Param() params: { id: string }): Promise<Gather> {
+  async findOne(@Param() params: { id: string }): Promise<Gather> {
     console.log(params.id);
-    return new Promise(() => ({
+    return {
       id: '1',
       name: 'Gather 1',
       location: {
@@ -51,13 +51,13 @@ export class GathersController {
           name: 'Participant 1',
         },
       ],
-    }));
+    };
   }
 
   @Post()
-  create(@Body() createGatherDto: CreateGatherDto): Promise<Gather> {
+  async create(@Body() createGatherDto: CreateGatherDto): Promise<Gather> {
     console.log(createGatherDto);
-    return new Promise(() => ({
+    return {
       id: '1',
       name: 'Gather 1',
       location: {
@@ -73,13 +73,13 @@ export class GathersController {
           name: 'Participant 1',
         },
       ],
-    }));
+    };
   }
 
   @Post('join')
-  join(@Body() joinGatherDto: JoinGatherDto): Promise<Gather> {
+  async join(@Body() joinGatherDto: JoinGatherDto): Promise<Gather> {
     console.log(joinGatherDto);
-    return new Promise(() => ({
+    return {
       id: '1',
       name: 'Gather 1',
       location: {
@@ -99,6 +99,6 @@ export class GathersController {
           name: 'New Participant',
         },
       ],
-    }));
+    };
   }
 }
