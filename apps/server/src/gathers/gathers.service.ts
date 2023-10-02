@@ -10,6 +10,8 @@ export class GathersService {
   constructor(private prisma: PrismaService) {}
 
   async create(gatherDto: CreateGatherDto): Promise<Gather> {
+    console.log('create', gatherDto)
+
     const data = {
       ...gatherDto.gather,
       participants: {
