@@ -13,7 +13,8 @@ export class GathersService {
     console.log('create', gatherDto)
 
     const data = {
-      ...gatherDto.gather,
+      name: gatherDto.gather.name || 'Placeholder',
+      date: gatherDto.gather.date && new Date(gatherDto.gather.date),
       participants: {
         connect: [{ id: CURRENT_USER_PLACEHOLDER_ID }],
       },
@@ -28,7 +29,7 @@ export class GathersService {
           },
           create: {
             place_id: gatherDto.gather.gatherLocation.googleId,
-            name: gatherDto.gather.gatherLocation.name,
+            name: gatherDto.gather.gatherLocation.name || 'Placeholder',
             formatted_address: gatherDto.gather.gatherLocation.formattedAddress,
             location: gatherDto.gather.gatherLocation.location,
           },

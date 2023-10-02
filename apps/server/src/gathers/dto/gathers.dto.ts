@@ -7,8 +7,9 @@ export class CreateGatherDto {
 }
 export class GatherWithoutId {
   name?: string
+  date?: string
   gatherLocation: GatherLocation
-  participants: Participant[]
+  participants?: Participant[]
 }
 
 export class JoinGatherDto {

@@ -7,7 +7,7 @@ import './index.css'
 
 const maxNumberOfSuggestions = 5
 const user: Participant = {
-  id: '1',
+  id: 2,
   name: 'Jesper Hodge',
 }
 const baseUrl = 'http://localhost:4000'
@@ -104,6 +104,9 @@ const PlacesAutocompleteService: FunctionComponent<Record<string, unknown>> = ()
 
     const response = await fetch(`${baseUrl}/gathers`, {
       method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+      },
       body: JSON.stringify({ gather: newGather }),
     })
     console.log('createGather response: ', response)
@@ -116,6 +119,9 @@ const PlacesAutocompleteService: FunctionComponent<Record<string, unknown>> = ()
   const joinGather = async (gatherId: string, newParticipant: Participant) => {
     const response = await fetch(`${baseUrl}/gathers/join`, {
       method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+      },
       body: JSON.stringify({ gatherId: gatherId, userId: newParticipant.id }),
     })
     console.log('joinGather response: ', response)

@@ -24,7 +24,7 @@ export class GathersController {
 
   @Post()
   async create(@Body() createGatherDto: CreateGatherDto): Promise<Gather> {
-    console.log('createGatherDto: ', createGatherDto)
+    console.log(createGatherDto)
 
     return this.gathersService.create(createGatherDto)
   }
