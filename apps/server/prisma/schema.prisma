@@ -11,26 +11,29 @@ datasource db {
 }
 
 model User {
-  id              Int     @default(autoincrement()) @id
-  created_at      DateTime @default(now())
-  updated_at      DateTime @updatedAt
-  email           String  @unique
+  id              Int       @default(autoincrement()) @id
+  created_at      DateTime  @default(now())
+  updated_at      DateTime  @updatedAt
+  email           String    @unique
   name            String?
-  gathers         Gather[]
+  gathers         Gather[]  @relation("Gather_participantsToUsers")
+  created_gathers Gather[]  @relation("Gather_creatorIdToUser")
 
   @@map("User")
 }
 
 model Gather {
-  id            Int      @default(autoincrement()) @id
-  created_at    DateTime @default(now())
-  updated_at    DateTime @updatedAt
-  name          String?
-  location      String?
-  date          DateTime?
-  participants  User[]
-  googlePlace  GooglePlace @relation(fields: [googlePlaceId], references: [place_id])
-  googlePlaceId String
+  id              Int           @default(autoincrement()) @id
+  created_at      DateTime      @default(now())
+  updated_at      DateTime      @updatedAt
+  name            String?
+  location        String?
+  date            DateTime?
+  participants    User[]        @relation("Gather_participantsToUsers")
+  creator         User          @relation(fields: [creatorId], references: [id], name: "Gather_creatorIdToUser")
+  creatorId       Int
+  googlePlace     GooglePlace   @relation(fields: [googlePlaceId], references: [place_id])
+  googlePlaceId   String
 
   @@map("Gather")
   @@index([googlePlaceId])
