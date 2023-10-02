@@ -1,4 +1,8 @@
-version: '3.0'
+version: '3.1'
+
+networks:
+  socializr-network:
+    driver: bridge
 
 services:
   openapi_mock:
@@ -11,4 +15,23 @@ services:
       OPENAPI_MOCK_CORS_ENABLED: 1
       OPENAPI_MOCK_USE_EXAMPLES: 'if_present'
     ports:
-      - "8080:8080"
+      - "6006:6006"
+
+  db:
+    image: postgres
+    restart: always
+    environment:
+      POSTGRES_USER: admin
+      POSTGRES_PASSWORD: admin
+    networks:
+      - socializr-network
+    ports:
+      - "5432:5432"  # Exposing Postgres port to host
+
+  adminer:
+    image: adminer
+    restart: always
+    ports:
+      - 8080:8080
+    networks:
+      - socializr-network
