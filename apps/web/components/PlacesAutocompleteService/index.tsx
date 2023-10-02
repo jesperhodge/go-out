@@ -1,4 +1,4 @@
-import React, { FunctionComponent, ChangeEvent, useState, useRef, useEffect } from 'react'
+import React, { FunctionComponent, ChangeEvent, useState, useRef } from 'react'
 import { useAutocompleteService, useGoogleMap, usePlacesService } from '@ubilabs/google-maps-react-hooks'
 
 import { Gather, Participant, PlacesAutocompleteServiceSuggestion } from '@customTypes/gather'
@@ -25,7 +25,6 @@ const PlacesAutocompleteService: FunctionComponent<Record<string, unknown>> = ()
   const autocompleteService = useAutocompleteService()
   const placesService = usePlacesService()
 
-  const [closeGathers, setCloseGathers] = useState<Gather[]>([])
   const [selectedGather, setSelectedGather] = useState<Gather | null>(null)
 
   // Update the user input value
@@ -75,11 +74,11 @@ const PlacesAutocompleteService: FunctionComponent<Record<string, unknown>> = ()
       .join('&')
   }
 
+  // TODO: replace the lat/lng stuff with location.toString()!
   const getGather = async (googlePlace: google.maps.places.PlaceResult) => {
     const params = {
       googleId: googlePlace.place_id,
-      lat: googlePlace.geometry?.location?.lat(),
-      lng: googlePlace.geometry?.location?.lng(),
+      location: googlePlace.geometry?.location?.toString(),
     }
     const queryString = encodeParams(params)
     const response = await fetch(`${baseUrl}/gathers?${queryString}`)
@@ -94,10 +93,9 @@ const PlacesAutocompleteService: FunctionComponent<Record<string, unknown>> = ()
 
     const newGather: Gather = {
       name: googlePlace.name,
-      location: {
+      gatherLocation: {
         googleId: googlePlace.place_id,
-        lat: googlePlace.geometry?.location?.lat() || 0,
-        lng: googlePlace.geometry?.location?.lng() || 0,
+        location: googlePlace.geometry?.location?.toString(),
       },
       participants: [user],
     }
@@ -164,11 +162,6 @@ const PlacesAutocompleteService: FunctionComponent<Record<string, unknown>> = ()
     )
   }
 
-  function isGather(place: google.maps.places.PlaceResult): place is Gather {
-    // check if selected place google place id is selectedGather id
-    return selectedGather?.location?.googleId === place.place_id
-  }
-
   const handleCreate = async () => {
     console.log('selectedPlace: ', selectedPlace)
     if (selectedPlace) {
@@ -230,8 +223,8 @@ const PlacesAutocompleteService: FunctionComponent<Record<string, unknown>> = ()
         {selectedGather && (
           <div>
             <b>selectedGather</b>
-            <p>Name: {selectedGather?.name || selectedGather?.location?.name}</p>
-            <p>Location: {selectedGather?.location?.formattedAddress}</p>
+            <p>Name: {selectedGather?.name || selectedGather?.gatherLocation?.name}</p>
+            <p>Location: {selectedGather?.gatherLocation?.formattedAddress}</p>
             <b>Participants</b>
             {selectedGather?.participants?.map((participant, i) => (
               <p key={`gather-participants-${participant?.name}-${i}`}>{participant.name}</p>

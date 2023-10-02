@@ -21,14 +21,14 @@ export class GathersService {
       googlePlace: {
         connectOrCreate: {
           where: {
-            place_id: gatherDto.gather.location.googleId,
+            place_id: gatherDto.gather.gatherLocation.googleId,
+            location: gatherDto.gather.gatherLocation.location,
           },
           create: {
-            place_id: gatherDto.gather.location.googleId,
-            name: gatherDto.gather.location.name,
-            formatted_address: gatherDto.gather.location.formattedAddress,
-            lat: gatherDto.gather.location.lat,
-            lng: gatherDto.gather.location.lng,
+            place_id: gatherDto.gather.gatherLocation.googleId,
+            name: gatherDto.gather.gatherLocation.name,
+            formatted_address: gatherDto.gather.gatherLocation.formattedAddress,
+            location: gatherDto.gather.gatherLocation.location,
           },
         },
       },
@@ -44,8 +44,7 @@ export class GathersService {
       googlePlaceId: query.googleId,
       googlePlace: {
         is: {
-          lat: query.lat,
-          lng: query.lng,
+          location: query.location,
           name: query.googlePlaceName,
           formatted_address: query.address,
         },

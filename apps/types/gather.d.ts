@@ -9,16 +9,15 @@ export interface Participant {
 }
 
 export interface GatherLocation {
-  googleId: string
+  googleId?: string
+  location?: string
   name?: string
   formattedAddress?: string
-  lat: number
-  lng: number
 }
 
 export interface Gather {
   id?: string
   name?: string
-  location: GatherLocation
+  gatherLocation: GatherLocation
   participants: Participant[]
 }

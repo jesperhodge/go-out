@@ -13,8 +13,7 @@ export class ListAllEntities {
   id?: number
   name?: string
   limit?: number
-  lat?: number
-  lng?: number
+  location?: string
   date?: string
   googleId?: string
   address?: string
