@@ -27,7 +27,6 @@ model Gather {
   created_at      DateTime      @default(now())
   updated_at      DateTime      @updatedAt
   name            String?
-  location        String?
   date            DateTime?
   participants    User[]        @relation("Gather_participantsToUsers")
   creator         User          @relation(fields: [creatorId], references: [id], name: "Gather_creatorIdToUser")

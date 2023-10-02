@@ -1,19 +1,7 @@
-import {
-  Body,
-  Query,
-  Controller,
-  Get,
-  Param,
-  Post,
-  NotFoundException,
-} from '@nestjs/common';
-import { Gather } from '@customTypes/gather';
-import {
-  CreateGatherDto,
-  ListAllEntities,
-  JoinGatherDto,
-} from './dto/gathers.dto';
-import { GathersService } from './gathers.service';
+import { Body, Query, Controller, Get, Param, Post, NotFoundException } from '@nestjs/common'
+import { CreateGatherDto, ListAllEntities, JoinGatherDto } from './dto/gathers.dto'
+import { GathersService } from './gathers.service'
+import { Gather } from '@prisma/client'
 
 @Controller('gathers')
 export class GathersController {
@@ -21,33 +9,30 @@ export class GathersController {
 
   @Get()
   async findAll(@Query() query: ListAllEntities): Promise<Gather[]> {
-    console.log(query);
-    return this.gathersService.findAll();
+    console.log(query)
+    return this.gathersService.findAll(query)
   }
 
   @Get(':id')
-  async findOne(@Param() params: { id: string }): Promise<Gather | undefined> {
-    console.log(params.id);
-    const gather = this.gathersService.findOne(params.id);
-    if (!gather) throw new NotFoundException();
+  async findOne(@Param() params: { id: number }): Promise<Gather | null> {
+    console.log(params.id)
+    const gather = this.gathersService.findOne(params.id)
+    if (!gather) throw new NotFoundException()
 
-    return gather;
+    return gather
   }
 
   @Post()
   async create(@Body() createGatherDto: CreateGatherDto): Promise<Gather> {
-    console.log(createGatherDto);
+    console.log(createGatherDto)
 
-    return this.gathersService.create(createGatherDto.gather);
+    return this.gathersService.create(createGatherDto)
   }
 
   @Post('join')
   async join(@Body() joinGatherDto: JoinGatherDto): Promise<Gather> {
-    console.log(joinGatherDto);
+    console.log(joinGatherDto)
 
-    return this.gathersService.join(
-      joinGatherDto.gatherId,
-      joinGatherDto.userId,
-    );
+    return this.gathersService.join(joinGatherDto.gatherId, joinGatherDto.userId)
   }
 }

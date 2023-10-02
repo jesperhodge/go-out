@@ -1,30 +1,97 @@
-import { Gather } from '@customTypes/gather';
-import { Injectable, NotFoundException } from '@nestjs/common';
+import { Injectable } from '@nestjs/common'
+import { PrismaService } from '@server/prisma.service'
+import { Gather, Prisma } from '@prisma/client'
+import { CreateGatherDto, ListAllEntities } from './dto/gathers.dto'
+
+const CURRENT_USER_PLACEHOLDER_ID = 1
 
 @Injectable()
 export class GathersService {
-  private readonly gathers: Gather[] = [];
+  constructor(private prisma: PrismaService) {}
 
-  create(gather: Gather): Gather {
-    this.gathers.push(gather);
-    return gather;
-  }
-
-  findAll(): Gather[] {
-    return this.gathers;
-  }
-
-  findOne(id: string): Gather | undefined {
-    return this.gathers.find((gather) => gather.id === id);
-  }
-
-  join(gatherId: string, userId: string): Gather {
-    const gather = this.gathers.find((gather) => gather.id === gatherId);
-    if (gather) {
-      // TODO: Check if user is already in the gather and get the actual user name
-      gather.participants.push({ id: userId, name: 'Participant 1' });
+  async create(gatherDto: CreateGatherDto): Promise<Gather> {
+    const data = {
+      ...gatherDto.gather,
+      participants: {
+        connect: [{ id: CURRENT_USER_PLACEHOLDER_ID }],
+      },
+      creator: {
+        connect: { id: CURRENT_USER_PLACEHOLDER_ID },
+      },
+      googlePlace: {
+        connectOrCreate: {
+          where: {
+            place_id: gatherDto.gather.location.googleId,
+          },
+          create: {
+            place_id: gatherDto.gather.location.googleId,
+            name: gatherDto.gather.location.name,
+            formatted_address: gatherDto.gather.location.formattedAddress,
+            lat: gatherDto.gather.location.lat,
+            lng: gatherDto.gather.location.lng,
+          },
+        },
+      },
     }
-    if (!gather) throw new NotFoundException();
-    return gather;
+    return this.prisma.gather.create({ data })
+  }
+
+  async findAll(query: ListAllEntities): Promise<Gather[]> {
+    const where: Prisma.GatherWhereInput = {
+      id: query.id,
+      name: query.name,
+      date: query.date ? new Date(query.date) : undefined,
+      googlePlaceId: query.googleId,
+      googlePlace: {
+        is: {
+          lat: query.lat,
+          lng: query.lng,
+          name: query.googlePlaceName,
+          formatted_address: query.address,
+        },
+      },
+    }
+
+    return this.prisma.gather.findMany({
+      where,
+      include: {
+        participants: true,
+        creator: true,
+        googlePlace: true,
+      },
+    })
+  }
+
+  async findOne(id: number): Promise<Gather | null> {
+    return this.prisma.gather.findUnique({
+      where: {
+        id: id,
+      },
+      include: {
+        participants: true,
+        creator: true,
+        googlePlace: true,
+      },
+    })
+  }
+
+  // TODO: verify that user id corresponds to logged in user
+  async join(gatherId: number, userId: number): Promise<Gather> {
+    const result = await this.prisma.gather.update({
+      where: { id: gatherId },
+      data: {
+        participants: {
+          connect: {
+            id: userId,
+          },
+        },
+      },
+      include: {
+        participants: true,
+        creator: true,
+        googlePlace: true,
+      },
+    })
+    return result
   }
 }

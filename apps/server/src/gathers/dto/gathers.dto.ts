@@ -1,23 +1,23 @@
-import { Gather } from '@customTypes/gather';
+import { Gather } from '@customTypes/gather'
 
 export class CreateGatherDto {
-  gather: Gather;
+  gather: Omit<Gather, 'id'>
 }
 
 export class JoinGatherDto {
-  gatherId: string;
-  userId: string;
+  gatherId: number
+  userId: number
 }
 
 export class ListAllEntities {
-  id?: string;
-  name?: string;
-  limit?: number;
-  lat?: number;
-  lng?: number;
-  radius?: number;
-  googleId?: string;
-  address?: string;
-  googlePlaceName?: string;
-  participantId?: string;
+  id?: number
+  name?: string
+  limit?: number
+  lat?: number
+  lng?: number
+  date?: string
+  googleId?: string
+  address?: string
+  googlePlaceName?: string
+  // participantId?: string
 }
