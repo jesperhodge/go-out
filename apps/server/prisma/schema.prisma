@@ -11,7 +11,50 @@ datasource db {
 }
 
 model User {
-  id    Int     @default(autoincrement()) @id
-  email String  @unique
-  name  String?
+  id              Int     @default(autoincrement()) @id
+  created_at      DateTime @default(now())
+  updated_at      DateTime @updatedAt
+  email           String  @unique
+  name            String?
+  gathers         Gather[]
+
+  @@map("User")
+}
+
+model Gather {
+  id            Int      @default(autoincrement()) @id
+  created_at    DateTime @default(now())
+  updated_at    DateTime @updatedAt
+  name          String?
+  location      String?
+  date          DateTime?
+  participants  User[]
+  googlePlace  GooglePlace @relation(fields: [googlePlaceId], references: [place_id])
+  googlePlaceId String
+
+  @@map("Gather")
+  @@index([googlePlaceId])
+}
+
+model GooglePlace {
+  id                        Int      @default(autoincrement()) @id
+  created_at                DateTime @default(now())
+  updated_at                DateTime @updatedAt
+  place_id                  String   @unique
+  lat                       Float
+  lng                       Float
+  name                      String?
+  opening_hours             Json?
+  formatted_address         String?
+  formatted_phone_number    String?
+  photos                    Json?
+  rating                    Float?
+  reviews                   Json?
+  types                     Json?
+  url                       String?
+  user_ratings_total        Int?
+  website                   String?
+  gathers                   Gather[]
+
+  @@index(fields: [lat, lng, place_id])
 }
