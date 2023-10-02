@@ -1,7 +1,14 @@
-import { Gather } from '@customTypes/gather'
+// export class CreateGatherDto {
+//   gather: Omit<Gather, 'id'>
+// }
 
 export class CreateGatherDto {
-  gather: Omit<Gather, 'id'>
+  gather: GatherWithoutId
+}
+export class GatherWithoutId {
+  name?: string
+  gatherLocation: GatherLocation
+  participants: Participant[]
 }
 
 export class JoinGatherDto {
@@ -19,4 +26,26 @@ export class ListAllEntities {
   address?: string
   googlePlaceName?: string
   // participantId?: string
+}
+
+export class Participant {
+  id?: string
+  name: string
+}
+
+export class GatherLocation {
+  googleId?: string
+  location?: string
+  name?: string
+  formattedAddress?: string
+}
+
+export interface Gather {
+  id?: string
+
+  name?: string
+
+  gatherLocation: GatherLocation
+
+  participants: Participant[]
 }

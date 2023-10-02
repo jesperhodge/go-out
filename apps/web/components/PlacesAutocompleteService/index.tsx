@@ -100,6 +100,8 @@ const PlacesAutocompleteService: FunctionComponent<Record<string, unknown>> = ()
       participants: [user],
     }
 
+    console.log('body: ', JSON.stringify({ gather: newGather }))
+
     const response = await fetch(`${baseUrl}/gathers`, {
       method: 'POST',
       body: JSON.stringify({ gather: newGather }),
