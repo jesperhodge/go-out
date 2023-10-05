@@ -8,7 +8,7 @@ export class CreateGatherDto {
 export class GatherWithoutId {
   name?: string
   date?: string
-  gatherLocation: GatherLocation
+  googlePlace: GatherLocation
   participants?: Participant[]
 }
 
@@ -38,15 +38,12 @@ export class GatherLocation {
   googleId?: string
   location?: string
   name?: string
-  formattedAddress?: string
+  formatted_address?: string
 }
 
 export interface Gather {
   id?: string
-
   name?: string
-
-  gatherLocation: GatherLocation
-
+  googlePlace: GatherLocation
   participants: Participant[]
 }

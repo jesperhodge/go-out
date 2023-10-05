@@ -12,12 +12,12 @@ export interface GatherLocation {
   googleId?: string
   location?: string
   name?: string
-  formattedAddress?: string
+  formatted_address?: string
 }
 
 export interface Gather {
   id?: string
   name?: string
-  gatherLocation: GatherLocation
+  googlePlace: GatherLocation
   participants: Participant[]
 }

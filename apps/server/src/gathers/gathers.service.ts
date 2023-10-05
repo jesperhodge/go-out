@@ -24,19 +24,26 @@ export class GathersService {
       googlePlace: {
         connectOrCreate: {
           where: {
-            place_id: gatherDto.gather.gatherLocation.googleId,
-            location: gatherDto.gather.gatherLocation.location,
+            place_id: gatherDto.gather.googlePlace.googleId,
+            location: gatherDto.gather.googlePlace.location,
           },
           create: {
-            place_id: gatherDto.gather.gatherLocation.googleId,
-            name: gatherDto.gather.gatherLocation.name || 'Placeholder',
-            formatted_address: gatherDto.gather.gatherLocation.formattedAddress,
-            location: gatherDto.gather.gatherLocation.location,
+            place_id: gatherDto.gather.googlePlace.googleId,
+            name: gatherDto.gather.googlePlace.name || 'Placeholder',
+            formatted_address: gatherDto.gather.googlePlace.formatted_address,
+            location: gatherDto.gather.googlePlace.location,
           },
         },
       },
     }
-    return this.prisma.gather.create({ data })
+    return this.prisma.gather.create({
+      data,
+      include: {
+        participants: true,
+        creator: true,
+        googlePlace: true,
+      },
+    })
   }
 
   async findAll(query: ListAllEntities): Promise<Gather[]> {

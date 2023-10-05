@@ -90,12 +90,15 @@ const PlacesAutocompleteService: FunctionComponent<Record<string, unknown>> = ()
 
   const createGather = async (googlePlace: google.maps.places.PlaceResult) => {
     console.log('createGather googlePlace: ', googlePlace)
+    const name = 'Test Name'
 
     const newGather: Gather = {
-      name: googlePlace.name,
-      gatherLocation: {
+      name,
+      googlePlace: {
         googleId: googlePlace.place_id,
         location: googlePlace.geometry?.location?.toString(),
+        name: googlePlace.name,
+        formatted_address: googlePlace.formatted_address,
       },
       participants: [user],
     }
@@ -181,11 +184,10 @@ const PlacesAutocompleteService: FunctionComponent<Record<string, unknown>> = ()
   const handleJoin = async () => {
     if (!selectedGather?.id || !user) return
 
-    await joinGather(selectedGather.id, user)
+    const data = await joinGather(selectedGather.id, user)
 
     setSelectedGather({
-      ...selectedGather,
-      participants: [...selectedGather?.participants, user],
+      ...data,
     })
   }
 
@@ -231,8 +233,8 @@ const PlacesAutocompleteService: FunctionComponent<Record<string, unknown>> = ()
         {selectedGather && (
           <div>
             <b>selectedGather</b>
-            <p>Name: {selectedGather?.name || selectedGather?.gatherLocation?.name}</p>
-            <p>Location: {selectedGather?.gatherLocation?.formattedAddress}</p>
+            <p>Name: {selectedGather?.name || selectedGather?.googlePlace?.name}</p>
+            <p>Location: {selectedGather?.googlePlace?.formatted_address}</p>
             <b>Participants</b>
             {selectedGather?.participants?.map((participant, i) => (
               <p key={`gather-participants-${participant?.name}-${i}`}>{participant.name}</p>
