@@ -11,7 +11,7 @@ import React, {
 import { GoogleMapsProvider } from '@ubilabs/google-maps-react-hooks'
 
 import MapCanvas from '../../components/MapCanvas'
-import PlacesAutocompleteService from '../../components/PlacesAutocompleteService'
+import PlaceFinder from '../../components/PlaceFinder'
 import { Gather } from '@customTypes/gather'
 import { GatherGallery } from '@web/components/GatherGallery'
 import { Toolbar } from '@web/components/Toolbar'
@@ -73,10 +73,7 @@ const Dashboard: FunctionComponent<Record<string, unknown>> = () => {
     >
       <div id="container">
         <MapCanvas ref={mapRef} />
-        <PlacesAutocompleteService
-          gatherList={gatherList}
-          setGatherList={setGatherList}
-        />
+        <PlaceFinder gatherList={gatherList} setGatherList={setGatherList} />
         <GatherGallery gatherList={gatherList} />
         <Toolbar />
       </div>

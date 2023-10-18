@@ -1,4 +1,4 @@
-export interface PlacesAutocompleteServiceSuggestion {
+export interface PlaceFinderSuggestion {
   id: string
   label: string
 }

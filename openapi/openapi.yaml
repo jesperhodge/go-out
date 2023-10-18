@@ -118,7 +118,7 @@ paths:
       x-swagger-router-controller: Default
 components:
   schemas:
-    PlacesAutocompleteServiceSuggestion:
+    PlaceFinderSuggestion:
       required:
       - label
       type: object

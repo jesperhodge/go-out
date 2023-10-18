@@ -5,11 +5,7 @@ import {
   usePlacesService,
 } from '@ubilabs/google-maps-react-hooks'
 
-import {
-  Gather,
-  Participant,
-  PlacesAutocompleteServiceSuggestion,
-} from '@customTypes/gather'
+import { Gather, Participant, PlaceFinderSuggestion } from '@customTypes/gather'
 
 import './index.css'
 
@@ -20,14 +16,12 @@ const user: Participant = {
 }
 const baseUrl = 'http://localhost:4000'
 
-const PlacesAutocompleteService: FC<Record<string, unknown>> = () => {
+const PlaceFinder: FC<Record<string, unknown>> = () => {
   const inputRef = useRef<HTMLInputElement | null>(null)
   const timeout = useRef<NodeJS.Timeout | null>(null)
 
   const [inputValue, setInputValue] = useState<string>('')
-  const [suggestions, setSuggestions] = useState<
-    Array<PlacesAutocompleteServiceSuggestion>
-  >([])
+  const [suggestions, setSuggestions] = useState<Array<PlaceFinderSuggestion>>([])
   const [suggestionsAreVisible, setSuggestionsAreVisible] = useState<boolean>(false)
   const [selectedPlace, setSelectedPlace] =
     useState<google.maps.places.PlaceResult | null>(null)
@@ -148,7 +142,7 @@ const PlacesAutocompleteService: FC<Record<string, unknown>> = () => {
   }
 
   // Handle suggestion selection
-  const selectSuggestion = (suggestion: PlacesAutocompleteServiceSuggestion) => {
+  const selectSuggestion = (suggestion: PlaceFinderSuggestion) => {
     inputRef.current?.focus()
     setInputValue(suggestion.label)
 
@@ -297,4 +291,4 @@ const PlacesAutocompleteService: FC<Record<string, unknown>> = () => {
   )
 }
 
-export default PlacesAutocompleteService
+export default PlaceFinder
