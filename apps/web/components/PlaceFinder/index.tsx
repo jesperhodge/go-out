@@ -8,6 +8,8 @@ import {
 import { Gather, Participant, PlaceFinderSuggestion } from '@customTypes/gather'
 
 import './index.css'
+import { GatherModal } from '../GatherModal'
+import { Search } from '../Search'
 
 const maxNumberOfSuggestions = 5
 const user: Participant = {
@@ -16,7 +18,72 @@ const user: Participant = {
 }
 const baseUrl = 'http://localhost:4000'
 
+const encodeParams = (params: Record<string, any>): string => {
+  return Object.keys(params)
+    .map((key) => `${key}=${encodeURIComponent(params[key])}`)
+    .join('&')
+}
+
+const getGather = async (googlePlace: google.maps.places.PlaceResult) => {
+  const params = {
+    googleId: googlePlace.place_id,
+    location: googlePlace.geometry?.location?.toString(),
+  }
+  const queryString = encodeParams(params)
+  const response = await fetch(`${baseUrl}/gathers?${queryString}`)
+  console.log('getGather response: ', response)
+  const data = await response.json()
+  console.log('getGather data: ', data)
+  return data
+}
+
+const createGather = async (googlePlace: google.maps.places.PlaceResult) => {
+  console.log('createGather googlePlace: ', googlePlace)
+  const name = 'Test Name'
+
+  const newGather: Gather = {
+    name,
+    googlePlace: {
+      googleId: googlePlace.place_id,
+      location: googlePlace.geometry?.location?.toString(),
+      name: googlePlace.name,
+      formatted_address: googlePlace.formatted_address,
+    },
+    participants: [user],
+  }
+
+  console.log('body: ', JSON.stringify({ gather: newGather }))
+
+  const response = await fetch(`${baseUrl}/gathers`, {
+    method: 'POST',
+    headers: {
+      'Content-Type': 'application/json',
+    },
+    body: JSON.stringify({ gather: newGather }),
+  })
+  console.log('createGather response: ', response)
+  const data = await response.json()
+  console.log('createGather data: ', data)
+
+  return data
+}
+
+const joinGather = async (gatherId: string, newParticipant: Participant) => {
+  const response = await fetch(`${baseUrl}/gathers/join`, {
+    method: 'POST',
+    headers: {
+      'Content-Type': 'application/json',
+    },
+    body: JSON.stringify({ gatherId: gatherId, userId: newParticipant.id }),
+  })
+  console.log('joinGather response: ', response)
+  const data = await response.json()
+  console.log('joinGather data: ', data)
+  return data
+}
+
 const PlaceFinder: FC<Record<string, unknown>> = () => {
+  // Define state and refs
   const inputRef = useRef<HTMLInputElement | null>(null)
   const timeout = useRef<NodeJS.Timeout | null>(null)
 
@@ -25,13 +92,13 @@ const PlaceFinder: FC<Record<string, unknown>> = () => {
   const [suggestionsAreVisible, setSuggestionsAreVisible] = useState<boolean>(false)
   const [selectedPlace, setSelectedPlace] =
     useState<google.maps.places.PlaceResult | null>(null)
+  const [selectedGather, setSelectedGather] = useState<Gather | null>(null)
+  const [modalOpen, setModalOpen] = useState<boolean>(false)
 
+  // Get google map services
   const map = useGoogleMap()
   const autocompleteService = useAutocompleteService()
   const placesService = usePlacesService()
-
-  const [selectedGather, setSelectedGather] = useState<Gather | null>(null)
-  const [modalOpen, setModalOpen] = useState<boolean>(false)
 
   // Update the user input value
   const handleInputChange = (event: ChangeEvent<HTMLInputElement>) => {
@@ -76,70 +143,7 @@ const PlaceFinder: FC<Record<string, unknown>> = () => {
     }, 300)
   }
 
-  const encodeParams = (params: Record<string, any>): string => {
-    return Object.keys(params)
-      .map((key) => `${key}=${encodeURIComponent(params[key])}`)
-      .join('&')
-  }
-
   // TODO: replace the lat/lng stuff with location.toString()!
-  const getGather = async (googlePlace: google.maps.places.PlaceResult) => {
-    const params = {
-      googleId: googlePlace.place_id,
-      location: googlePlace.geometry?.location?.toString(),
-    }
-    const queryString = encodeParams(params)
-    const response = await fetch(`${baseUrl}/gathers?${queryString}`)
-    console.log('getGather response: ', response)
-    const data = await response.json()
-    console.log('getGather data: ', data)
-    return data
-  }
-
-  const createGather = async (googlePlace: google.maps.places.PlaceResult) => {
-    console.log('createGather googlePlace: ', googlePlace)
-    const name = 'Test Name'
-
-    const newGather: Gather = {
-      name,
-      googlePlace: {
-        googleId: googlePlace.place_id,
-        location: googlePlace.geometry?.location?.toString(),
-        name: googlePlace.name,
-        formatted_address: googlePlace.formatted_address,
-      },
-      participants: [user],
-    }
-
-    console.log('body: ', JSON.stringify({ gather: newGather }))
-
-    const response = await fetch(`${baseUrl}/gathers`, {
-      method: 'POST',
-      headers: {
-        'Content-Type': 'application/json',
-      },
-      body: JSON.stringify({ gather: newGather }),
-    })
-    console.log('createGather response: ', response)
-    const data = await response.json()
-    console.log('createGather data: ', data)
-
-    return data
-  }
-
-  const joinGather = async (gatherId: string, newParticipant: Participant) => {
-    const response = await fetch(`${baseUrl}/gathers/join`, {
-      method: 'POST',
-      headers: {
-        'Content-Type': 'application/json',
-      },
-      body: JSON.stringify({ gatherId: gatherId, userId: newParticipant.id }),
-    })
-    console.log('joinGather response: ', response)
-    const data = await response.json()
-    console.log('joinGather data: ', data)
-    return data
-  }
 
   // Handle suggestion selection
   const selectSuggestion = (suggestion: PlaceFinderSuggestion) => {
@@ -205,87 +209,22 @@ const PlaceFinder: FC<Record<string, unknown>> = () => {
 
   return (
     <>
-      <input
-        ref={inputRef}
-        className="searchInput"
-        value={inputValue}
-        onChange={handleInputChange}
-        autoComplete="off"
-        role="combobox"
-        aria-autocomplete="list"
-        aria-controls="search-suggestions"
-        aria-expanded={suggestionsAreVisible}
-        id="places-search-autocomplete"
-      />
-
-      {suggestionsAreVisible && (
-        <ul
-          className="suggestions"
-          id="search-suggestions"
-          role="listbox"
-          aria-label="Suggested locations:"
-        >
-          {suggestions.map((suggestion) => (
-            <li
-              key={suggestion.id}
-              onClick={() => selectSuggestion(suggestion)}
-              id={suggestion.id}
-            >
-              <span>{suggestion.label}</span>
-            </li>
-          ))}
-        </ul>
-      )}
+      <Search
+        inputRef={inputRef}
+        inputValue={inputValue}
+        suggestions={suggestions}
+        suggestionsAreVisible={suggestionsAreVisible}
+        handleInputChange={handleInputChange}
+        selectSuggestion={selectSuggestion}
+      ></Search>
       {modalOpen && (
-        <div className="gather-modal">
-          <svg
-            xmlns="http://www.w3.org/2000/svg"
-            fill="none"
-            viewBox="0 0 24 24"
-            strokeWidth={1.5}
-            stroke="currentColor"
-            className="w-6 h-6 absolute top-4 right-4"
-            onClick={() => {
-              setModalOpen(false)
-            }}
-          >
-            <path strokeLinecap="round" strokeLinejoin="round" d="M6 18L18 6M6 6l12 12" />
-          </svg>
-          <h2 className="text-xl font-bold mb-3">Create or Join an event</h2>
-          <div className="flex flex-row justify-center gap-8">
-            <div>
-              <b>{selectedPlace?.name}</b>
-              <p>{selectedPlace?.formatted_address}</p>
-              {selectedPlace && (
-                <button
-                  className="inline-flex justify-center rounded-lg text-sm font-semibold py-3 px-4 bg-slate-900 text-white hover:bg-slate-700"
-                  onClick={handleCreate}
-                >
-                  Create
-                </button>
-              )}
-            </div>
-            {selectedGather && (
-              <div>
-                <b>selectedGather</b>
-                <p>Name: {selectedGather?.name || selectedGather?.googlePlace?.name}</p>
-                <p>Location: {selectedGather?.googlePlace?.formatted_address}</p>
-                <b>Participants</b>
-                {selectedGather?.participants?.map((participant, i) => (
-                  <p key={`gather-participants-${participant?.name}-${i}`}>
-                    {participant.name}
-                  </p>
-                ))}
-                <button
-                  className="inline-flex justify-center rounded-lg text-sm font-semibold py-3 px-4 bg-slate-900 text-white hover:bg-slate-700"
-                  onClick={handleJoin}
-                >
-                  Join
-                </button>
-              </div>
-            )}
-          </div>
-        </div>
+        <GatherModal
+          selectedPlace={selectedPlace}
+          selectedGather={selectedGather}
+          setModalOpen={setModalOpen}
+          handleCreate={handleCreate}
+          handleJoin={handleJoin}
+        />
       )}
     </>
   )
