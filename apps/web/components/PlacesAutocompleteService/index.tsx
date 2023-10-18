@@ -1,7 +1,15 @@
-import React, { FunctionComponent, ChangeEvent, useState, useRef } from 'react'
-import { useAutocompleteService, useGoogleMap, usePlacesService } from '@ubilabs/google-maps-react-hooks'
+import React, { ChangeEvent, useState, useRef, FC } from 'react'
+import {
+  useAutocompleteService,
+  useGoogleMap,
+  usePlacesService,
+} from '@ubilabs/google-maps-react-hooks'
 
-import { Gather, Participant, PlacesAutocompleteServiceSuggestion } from '@customTypes/gather'
+import {
+  Gather,
+  Participant,
+  PlacesAutocompleteServiceSuggestion,
+} from '@customTypes/gather'
 
 import './index.css'
 
@@ -12,20 +20,24 @@ const user: Participant = {
 }
 const baseUrl = 'http://localhost:4000'
 
-const PlacesAutocompleteService: FunctionComponent<Record<string, unknown>> = () => {
+const PlacesAutocompleteService: FC<Record<string, unknown>> = () => {
   const inputRef = useRef<HTMLInputElement | null>(null)
   const timeout = useRef<NodeJS.Timeout | null>(null)
 
   const [inputValue, setInputValue] = useState<string>('')
-  const [suggestions, setSuggestions] = useState<Array<PlacesAutocompleteServiceSuggestion>>([])
+  const [suggestions, setSuggestions] = useState<
+    Array<PlacesAutocompleteServiceSuggestion>
+  >([])
   const [suggestionsAreVisible, setSuggestionsAreVisible] = useState<boolean>(false)
-  const [selectedPlace, setSelectedPlace] = useState<google.maps.places.PlaceResult | null>(null)
+  const [selectedPlace, setSelectedPlace] =
+    useState<google.maps.places.PlaceResult | null>(null)
 
   const map = useGoogleMap()
   const autocompleteService = useAutocompleteService()
   const placesService = usePlacesService()
 
   const [selectedGather, setSelectedGather] = useState<Gather | null>(null)
+  const [modalOpen, setModalOpen] = useState<boolean>(false)
 
   // Update the user input value
   const handleInputChange = (event: ChangeEvent<HTMLInputElement>) => {
@@ -45,10 +57,12 @@ const PlacesAutocompleteService: FunctionComponent<Record<string, unknown>> = ()
             return
           }
 
-          const autocompleteSuggestions = predictions.slice(0, maxNumberOfSuggestions).map((prediction) => ({
-            id: prediction.place_id,
-            label: prediction.description,
-          }))
+          const autocompleteSuggestions = predictions
+            .slice(0, maxNumberOfSuggestions)
+            .map((prediction) => ({
+              id: prediction.place_id,
+              label: prediction.description,
+            }))
 
           // Update suggestions for dropdown suggestions list
           setSuggestions(autocompleteSuggestions)
@@ -144,12 +158,16 @@ const PlacesAutocompleteService: FunctionComponent<Record<string, unknown>> = ()
     // Get the location from Places Service of the selected place and zoom to it
     placesService?.getDetails(
       { placeId: suggestion.id },
-      async (placeResult: google.maps.places.PlaceResult | null, status: google.maps.places.PlacesServiceStatus) => {
+      async (
+        placeResult: google.maps.places.PlaceResult | null,
+        status: google.maps.places.PlacesServiceStatus,
+      ) => {
         if (status !== google.maps.places.PlacesServiceStatus.OK || !placeResult) {
           return
         }
 
         setSelectedPlace(placeResult)
+        setModalOpen(true)
         const gathers = await getGather(placeResult)
         const gather = gathers[0]
 
@@ -193,7 +211,6 @@ const PlacesAutocompleteService: FunctionComponent<Record<string, unknown>> = ()
 
   return (
     <>
-      <label htmlFor="places-search-autocomplete">Search for a location:</label>
       <input
         ref={inputRef}
         className="searchInput"
@@ -208,46 +225,74 @@ const PlacesAutocompleteService: FunctionComponent<Record<string, unknown>> = ()
       />
 
       {suggestionsAreVisible && (
-        <ul className="suggestions" id="search-suggestions" role="listbox" aria-label="Suggested locations:">
+        <ul
+          className="suggestions"
+          id="search-suggestions"
+          role="listbox"
+          aria-label="Suggested locations:"
+        >
           {suggestions.map((suggestion) => (
-            <li key={suggestion.id} onClick={() => selectSuggestion(suggestion)} id={suggestion.id}>
+            <li
+              key={suggestion.id}
+              onClick={() => selectSuggestion(suggestion)}
+              id={suggestion.id}
+            >
               <span>{suggestion.label}</span>
             </li>
           ))}
         </ul>
       )}
-      <div className="app-box flex flex-row justify-center gap-8">
-        <div>
-          <b>{selectedPlace?.name}</b>
-          <p>{selectedPlace?.formatted_address}</p>
-          {/* {!selectedGather && selectedPlace && */}
-          {true && (
-            <button
-              className="inline-flex justify-center rounded-lg text-sm font-semibold py-3 px-4 bg-slate-900 text-white hover:bg-slate-700"
-              onClick={handleCreate}
-            >
-              Create
-            </button>
-          )}
-        </div>
-        {selectedGather && (
-          <div>
-            <b>selectedGather</b>
-            <p>Name: {selectedGather?.name || selectedGather?.googlePlace?.name}</p>
-            <p>Location: {selectedGather?.googlePlace?.formatted_address}</p>
-            <b>Participants</b>
-            {selectedGather?.participants?.map((participant, i) => (
-              <p key={`gather-participants-${participant?.name}-${i}`}>{participant.name}</p>
-            ))}
-            <button
-              className="inline-flex justify-center rounded-lg text-sm font-semibold py-3 px-4 bg-slate-900 text-white hover:bg-slate-700"
-              onClick={handleJoin}
-            >
-              Join
-            </button>
+      {modalOpen && (
+        <div className="gather-modal">
+          <svg
+            xmlns="http://www.w3.org/2000/svg"
+            fill="none"
+            viewBox="0 0 24 24"
+            strokeWidth={1.5}
+            stroke="currentColor"
+            className="w-6 h-6 absolute top-4 right-4"
+            onClick={() => {
+              setModalOpen(false)
+            }}
+          >
+            <path strokeLinecap="round" strokeLinejoin="round" d="M6 18L18 6M6 6l12 12" />
+          </svg>
+          <h2 className="text-xl font-bold mb-3">Create or Join an event</h2>
+          <div className="flex flex-row justify-center gap-8">
+            <div>
+              <b>{selectedPlace?.name}</b>
+              <p>{selectedPlace?.formatted_address}</p>
+              {selectedPlace && (
+                <button
+                  className="inline-flex justify-center rounded-lg text-sm font-semibold py-3 px-4 bg-slate-900 text-white hover:bg-slate-700"
+                  onClick={handleCreate}
+                >
+                  Create
+                </button>
+              )}
+            </div>
+            {selectedGather && (
+              <div>
+                <b>selectedGather</b>
+                <p>Name: {selectedGather?.name || selectedGather?.googlePlace?.name}</p>
+                <p>Location: {selectedGather?.googlePlace?.formatted_address}</p>
+                <b>Participants</b>
+                {selectedGather?.participants?.map((participant, i) => (
+                  <p key={`gather-participants-${participant?.name}-${i}`}>
+                    {participant.name}
+                  </p>
+                ))}
+                <button
+                  className="inline-flex justify-center rounded-lg text-sm font-semibold py-3 px-4 bg-slate-900 text-white hover:bg-slate-700"
+                  onClick={handleJoin}
+                >
+                  Join
+                </button>
+              </div>
+            )}
           </div>
-        )}
-      </div>
+        </div>
+      )}
     </>
   )
 }

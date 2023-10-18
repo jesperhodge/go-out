@@ -50,16 +50,15 @@ label {
   text-overflow: ellipsis;
 }
 
-.app-box {
+.gather-modal {
+  top: 20vh;
   position: absolute;
   background-color: #fff;
   text-align: center;
   padding: 1rem;
-  left: 1rem;
-  right: 1rem;
-  bottom: 1rem;
-  box-sizing: content-box;
   border-radius: 5px;
   box-shadow: 0 4px 8px 0 rgba(0, 0, 0, 0.2), 0 6px 20px 0 rgba(0, 0, 0, 0.19);
-  min-height: 10vh;
+  bottom: 20vh;
+  left: 20vw;
+  right: 20vw;
 }
