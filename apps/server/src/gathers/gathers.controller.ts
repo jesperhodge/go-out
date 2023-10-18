@@ -1,4 +1,14 @@
-import { Body, Query, Controller, Get, Param, Post, NotFoundException, UsePipes, ValidationPipe } from '@nestjs/common'
+import {
+  Body,
+  Query,
+  Controller,
+  Get,
+  Param,
+  Post,
+  NotFoundException,
+  UsePipes,
+  ValidationPipe,
+} from '@nestjs/common'
 import { CreateGatherDto, ListAllEntities, JoinGatherDto } from './dto/gathers.dto'
 import { GathersService } from './gathers.service'
 import { Gather } from '@prisma/client'

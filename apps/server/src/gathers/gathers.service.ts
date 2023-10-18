@@ -63,6 +63,7 @@ export class GathersService {
 
     return this.prisma.gather.findMany({
       where,
+      take: parseInt(query.limit as unknown as string), // TODO: serialize and fix type
       include: {
         participants: true,
         creator: true,
