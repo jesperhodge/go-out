@@ -1,9 +1,5 @@
-import React, { ChangeEvent, useState, useRef, FC } from 'react'
-import {
-  useAutocompleteService,
-  useGoogleMap,
-  usePlacesService,
-} from '@ubilabs/google-maps-react-hooks'
+import React, { useEffect, ChangeEvent, useState, useRef, FC } from 'react'
+import { useAutocompleteService, useGoogleMap, usePlacesService } from '@ubilabs/google-maps-react-hooks'
 
 import { Gather, Participant, PlaceFinderSuggestion } from '@customTypes/gather'
 
@@ -90,15 +86,25 @@ const PlaceFinder: FC<Record<string, unknown>> = () => {
   const [inputValue, setInputValue] = useState<string>('')
   const [suggestions, setSuggestions] = useState<Array<PlaceFinderSuggestion>>([])
   const [suggestionsAreVisible, setSuggestionsAreVisible] = useState<boolean>(false)
-  const [selectedPlace, setSelectedPlace] =
-    useState<google.maps.places.PlaceResult | null>(null)
+  const [selectedPlace, setSelectedPlace] = useState<google.maps.places.PlaceResult | null>(null)
   const [selectedGather, setSelectedGather] = useState<Gather | null>(null)
   const [modalOpen, setModalOpen] = useState<boolean>(false)
+  const [bounds, setBounds] = useState<google.maps.LatLngBounds | undefined | null>(null)
 
   // Get google map services
   const map = useGoogleMap()
   const autocompleteService = useAutocompleteService()
   const placesService = usePlacesService()
+
+  useEffect(() => {
+    if (map) {
+      map.addListener('bounds_changed', () => {
+        setBounds(map.getBounds())
+      })
+    }
+  }, [map])
+
+  console.log('bounds: ', bounds)
 
   // Update the user input value
   const handleInputChange = (event: ChangeEvent<HTMLInputElement>) => {
@@ -118,12 +124,10 @@ const PlaceFinder: FC<Record<string, unknown>> = () => {
             return
           }
 
-          const autocompleteSuggestions = predictions
-            .slice(0, maxNumberOfSuggestions)
-            .map((prediction) => ({
-              id: prediction.place_id,
-              label: prediction.description,
-            }))
+          const autocompleteSuggestions = predictions.slice(0, maxNumberOfSuggestions).map((prediction) => ({
+            id: prediction.place_id,
+            label: prediction.description,
+          }))
 
           // Update suggestions for dropdown suggestions list
           setSuggestions(autocompleteSuggestions)
@@ -156,10 +160,7 @@ const PlaceFinder: FC<Record<string, unknown>> = () => {
     // Get the location from Places Service of the selected place and zoom to it
     placesService?.getDetails(
       { placeId: suggestion.id },
-      async (
-        placeResult: google.maps.places.PlaceResult | null,
-        status: google.maps.places.PlacesServiceStatus,
-      ) => {
+      async (placeResult: google.maps.places.PlaceResult | null, status: google.maps.places.PlacesServiceStatus) => {
         if (status !== google.maps.places.PlacesServiceStatus.OK || !placeResult) {
           return
         }
