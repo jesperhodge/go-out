@@ -44,6 +44,8 @@ model GooglePlace {
   updated_at                DateTime? @updatedAt
   place_id                  String?   @unique
   location                  String?   @unique
+  lat                       Float?
+  lng                       Float?
   name                      String?
   opening_hours             Json?
   formatted_address         String?

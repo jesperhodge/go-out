@@ -17,7 +17,7 @@ export class JoinGatherDto {
   userId: number
 }
 
-export class ListAllEntities {
+export class ListAllEntitiesDto {
   id?: number
   name?: string
   limit?: number
@@ -26,6 +26,12 @@ export class ListAllEntities {
   googleId?: string
   address?: string
   googlePlaceName?: string
+  bounds?: {
+    north: number
+    south: number
+    east: number
+    west: number
+  }
   // participantId?: string
 }
 
@@ -39,6 +45,8 @@ export class GatherLocation {
   location?: string
   name?: string
   formatted_address?: string
+  lat?: number
+  lng?: number
 }
 
 export interface Gather {

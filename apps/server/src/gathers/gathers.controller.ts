@@ -1,15 +1,5 @@
-import {
-  Body,
-  Query,
-  Controller,
-  Get,
-  Param,
-  Post,
-  NotFoundException,
-  UsePipes,
-  ValidationPipe,
-} from '@nestjs/common'
-import { CreateGatherDto, ListAllEntities, JoinGatherDto } from './dto/gathers.dto'
+import { Body, Query, Controller, Get, Param, Post, NotFoundException, UsePipes, ValidationPipe } from '@nestjs/common'
+import { CreateGatherDto, ListAllEntitiesDto, JoinGatherDto } from './dto/gathers.dto'
 import { GathersService } from './gathers.service'
 import { Gather } from '@prisma/client'
 
@@ -18,7 +8,7 @@ export class GathersController {
   constructor(private gathersService: GathersService) {}
 
   @Get()
-  async findAll(@Query() query: ListAllEntities): Promise<Gather[]> {
+  async findAll(@Query() query: ListAllEntitiesDto): Promise<Gather[]> {
     console.log(query)
     return this.gathersService.findAll(query)
   }

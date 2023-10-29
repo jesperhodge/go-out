@@ -1,7 +1,7 @@
 import { Injectable } from '@nestjs/common'
 import { PrismaService } from '@server/prisma.service'
 import { Gather, Prisma } from '@prisma/client'
-import { CreateGatherDto, ListAllEntities } from './dto/gathers.dto'
+import { CreateGatherDto, ListAllEntitiesDto } from './dto/gathers.dto'
 
 const CURRENT_USER_PLACEHOLDER_ID = 1
 
@@ -10,7 +10,13 @@ export class GathersService {
   constructor(private prisma: PrismaService) {}
 
   async create(gatherDto: CreateGatherDto): Promise<Gather> {
-    console.log('create', gatherDto)
+    console.log('createGatherDto: ', gatherDto)
+
+    // extract lat and lng from location string "(lat, lng)".
+    // For example, "(37.422, -122.084)" => [37.422, -122.084]
+    const location = gatherDto.gather.googlePlace.location
+    const lat: number | undefined = location ? parseFloat(location.split(',')[0].slice(1)) : undefined
+    const lng: number | undefined = location ? parseFloat(location.split(',')[1].slice(0, -1)) : undefined
 
     const data = {
       name: gatherDto.gather.name || 'Placeholder',
@@ -32,6 +38,8 @@ export class GathersService {
             name: gatherDto.gather.googlePlace.name || 'Placeholder',
             formatted_address: gatherDto.gather.googlePlace.formatted_address,
             location: gatherDto.gather.googlePlace.location,
+            lat,
+            lng,
           },
         },
       },
@@ -46,24 +54,48 @@ export class GathersService {
     })
   }
 
-  async findAll(query: ListAllEntities): Promise<Gather[]> {
-    const where: Prisma.GatherWhereInput = {
+  async findAll(query: ListAllEntitiesDto): Promise<Gather[]> {
+    console.log('listAllEntitiesDto: ', query)
+
+    const bounds = query.bounds
+    console.log('bounds: ', bounds)
+
+    const googleLocationBoundsQuery = bounds
+      ? {
+          lat: {
+            gte: bounds.south,
+            lte: bounds.north,
+          },
+          lng: {
+            gte: bounds.west,
+            lte: bounds.east,
+          },
+        }
+      : undefined
+
+    const googleLocationFindOneQuery =
+      query.location || query.googlePlaceName || query.address
+        ? {
+            OR: [{ location: query.location }, { name: query.googlePlaceName }, { formatted_address: query.address }],
+          }
+        : undefined
+
+    const googleLocationFilter: Prisma.GooglePlaceWhereInput =
+      googleLocationBoundsQuery || googleLocationFindOneQuery || {}
+
+    const searchFilter: Prisma.GatherWhereInput = {
       id: query.id,
       name: query.name,
       date: query.date ? new Date(query.date) : undefined,
       googlePlaceId: query.googleId,
-      googlePlace: {
-        is: {
-          location: query.location,
-          name: query.googlePlaceName,
-          formatted_address: query.address,
-        },
-      },
+      googlePlace: googleLocationFilter,
     }
 
+    const limit = query.limit ? parseInt(query.limit as unknown as string) : 100
+
     return this.prisma.gather.findMany({
-      where,
-      take: parseInt(query.limit as unknown as string), // TODO: serialize and fix type
+      where: searchFilter,
+      take: limit,
       include: {
         participants: true,
         creator: true,
