@@ -53,9 +53,8 @@ const getGathersFromBounds = async (bounds: google.maps.LatLngBounds) => {
   return data
 }
 
-const createGather = async (googlePlace: google.maps.places.PlaceResult) => {
+const createGather = async (googlePlace: google.maps.places.PlaceResult, name: string) => {
   console.log('createGather googlePlace: ', googlePlace)
-  const name = 'Test Name'
 
   const newGather: Gather = {
     name,
@@ -64,6 +63,8 @@ const createGather = async (googlePlace: google.maps.places.PlaceResult) => {
       location: googlePlace.geometry?.location?.toString(),
       name: googlePlace.name,
       formatted_address: googlePlace.formatted_address,
+      lat: googlePlace.geometry?.location?.lat(),
+      lng: googlePlace.geometry?.location?.lng(),
     },
     participants: [user],
   }
@@ -98,7 +99,7 @@ const joinGather = async (gatherId: string, newParticipant: Participant) => {
   return data
 }
 
-const handleBoundsChanged = ({
+const refreshDisplayedEvents = ({
   map,
   setBounds,
   setGatherList,
@@ -119,6 +120,7 @@ const handleBoundsChanged = ({
 
 interface Props {
   setGatherList: React.Dispatch<React.SetStateAction<Gather[]>>
+  gatherList: Gather[]
 }
 const PlaceFinder: FC<Props> = ({ setGatherList }) => {
   // Define state and refs
@@ -131,7 +133,7 @@ const PlaceFinder: FC<Props> = ({ setGatherList }) => {
   const [selectedPlace, setSelectedPlace] = useState<google.maps.places.PlaceResult | null>(null)
   const [selectedGather, setSelectedGather] = useState<Gather | null>(null)
   const [modalOpen, setModalOpen] = useState<boolean>(false)
-  const [bounds, setBounds] = useState<google.maps.LatLngBounds | undefined | null>(null)
+  const [, setBounds] = useState<google.maps.LatLngBounds | undefined | null>(null)
 
   // Get google map services
   const map = useGoogleMap()
@@ -141,7 +143,7 @@ const PlaceFinder: FC<Props> = ({ setGatherList }) => {
   useEffect(() => {
     if (map) {
       map.addListener('bounds_changed', () => {
-        handleBoundsChanged({ map, setBounds, setGatherList })
+        refreshDisplayedEvents({ map, setBounds, setGatherList })
       })
     }
   }, [map])
@@ -230,11 +232,12 @@ const PlaceFinder: FC<Props> = ({ setGatherList }) => {
     )
   }
 
-  const handleCreate = async () => {
+  const handleCreate = async ({ name }: { name: string }) => {
     console.log('selectedPlace: ', selectedPlace)
     if (selectedPlace) {
-      const gather = await createGather(selectedPlace)
+      const gather = await createGather(selectedPlace, name)
       setSelectedGather(gather)
+      if (map) refreshDisplayedEvents({ map, setBounds, setGatherList })
     }
   }
 

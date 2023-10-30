@@ -13,6 +13,8 @@ export interface GatherLocation {
   location?: string
   name?: string
   formatted_address?: string
+  lat?: number
+  lng?: number
 }
 
 export interface Gather {

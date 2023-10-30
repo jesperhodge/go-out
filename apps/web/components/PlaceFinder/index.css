@@ -51,14 +51,21 @@ label {
 }
 
 .gather-modal {
-  top: 20vh;
   position: absolute;
   background-color: #fff;
   text-align: center;
   padding: 1rem;
   border-radius: 5px;
   box-shadow: 0 4px 8px 0 rgba(0, 0, 0, 0.2), 0 6px 20px 0 rgba(0, 0, 0, 0.19);
-  bottom: 20vh;
-  left: 20vw;
-  right: 20vw;
+  top: 0;
+  bottom: 0;
+  left: 0;
+  right: 0;
+
+  @media screen and (min-width: 768px) {
+    top: 20vh;
+    bottom: 20vh;
+    left: 20vw;
+    right: 20vw;
+  }
 }
