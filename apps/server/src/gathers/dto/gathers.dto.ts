@@ -26,12 +26,8 @@ export class ListAllEntitiesDto {
   googleId?: string
   address?: string
   googlePlaceName?: string
-  bounds?: {
-    north: number
-    south: number
-    east: number
-    west: number
-  }
+
+  bounds?: string
   // participantId?: string
 }
 

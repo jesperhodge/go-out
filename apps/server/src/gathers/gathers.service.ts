@@ -57,8 +57,7 @@ export class GathersService {
   async findAll(query: ListAllEntitiesDto): Promise<Gather[]> {
     console.log('listAllEntitiesDto: ', query)
 
-    const bounds = query.bounds
-    console.log('bounds: ', bounds)
+    const bounds = JSON.parse(query.bounds as unknown as string)
 
     const googleLocationBoundsQuery = bounds
       ? {
@@ -92,6 +91,8 @@ export class GathersService {
     }
 
     const limit = query.limit ? parseInt(query.limit as unknown as string) : 100
+
+    console.log('searchFilter: ', searchFilter)
 
     return this.prisma.gather.findMany({
       where: searchFilter,

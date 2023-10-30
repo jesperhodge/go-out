@@ -28,6 +28,26 @@ const getGather = async (googlePlace: google.maps.places.PlaceResult) => {
   const queryString = encodeParams(params)
   const response = await fetch(`${baseUrl}/gathers?${queryString}`)
   console.log('getGather response: ', response)
+  if (response.status !== 200) {
+    return []
+  }
+  const data = await response.json()
+  console.log('getGather data: ', data)
+  return data
+}
+
+const getGathersFromBounds = async (bounds: google.maps.LatLngBounds) => {
+  const params = {
+    bounds: JSON.stringify(bounds.toJSON()),
+  }
+  const queryString = encodeParams(params)
+  const response = await fetch(`${baseUrl}/gathers?${queryString}`)
+
+  if (response.status !== 200) {
+    return []
+  }
+
+  console.log('getGather response: ', response)
   const data = await response.json()
   console.log('getGather data: ', data)
   return data
@@ -78,7 +98,29 @@ const joinGather = async (gatherId: string, newParticipant: Participant) => {
   return data
 }
 
-const PlaceFinder: FC<Record<string, unknown>> = () => {
+const handleBoundsChanged = ({
+  map,
+  setBounds,
+  setGatherList,
+}: {
+  map: google.maps.Map
+  setBounds: React.Dispatch<React.SetStateAction<google.maps.LatLngBounds | undefined | null>>
+  setGatherList: React.Dispatch<React.SetStateAction<Gather[]>>
+}) => {
+  const bounds = map.getBounds()
+
+  if (bounds) {
+    setBounds(bounds)
+    getGathersFromBounds(bounds).then((gathers) => {
+      setGatherList(gathers)
+    })
+  }
+}
+
+interface Props {
+  setGatherList: React.Dispatch<React.SetStateAction<Gather[]>>
+}
+const PlaceFinder: FC<Props> = ({ setGatherList }) => {
   // Define state and refs
   const inputRef = useRef<HTMLInputElement | null>(null)
   const timeout = useRef<NodeJS.Timeout | null>(null)
@@ -99,12 +141,10 @@ const PlaceFinder: FC<Record<string, unknown>> = () => {
   useEffect(() => {
     if (map) {
       map.addListener('bounds_changed', () => {
-        setBounds(map.getBounds())
+        handleBoundsChanged({ map, setBounds, setGatherList })
       })
     }
   }, [map])
-
-  console.log('bounds: ', bounds)
 
   // Update the user input value
   const handleInputChange = (event: ChangeEvent<HTMLInputElement>) => {
