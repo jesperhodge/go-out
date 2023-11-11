@@ -15,9 +15,15 @@ A: The features have a lot of overlap, but it should be a very different experie
 - Database is postgres, provided via docker compose
 - I started out with a mock server on the basis of a swagger.yaml that's still lying around and started in the docker compose, but it's not very helpful at this point and I'll probably remove it.
 
-## Get started
+## Requirements
+- Google Maps API key
+- node >= 16
+- pnpm
+- docker
 
+## Get started
+- `cp .env.example .env`
+- add your Google Maps API key to .env
 - `pnpm install`
-- `pnpm dev`
-- `docker compose up`
+- `pnpm dev` (runs "docker compose up" and local servers)
 - navigate to `localhost:3000/dashboard`. You may need to refresh one or multiple times until you see google maps load; needs debugging.

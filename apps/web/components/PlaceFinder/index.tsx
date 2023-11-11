@@ -6,6 +6,7 @@ import { Gather, Participant, PlaceFinderSuggestion } from '@customTypes/gather'
 import './index.css'
 import { GatherModal } from '../GatherModal'
 import { Search } from '../Search'
+import { DashboardContext } from '@web/context/DashboardContext'
 
 const maxNumberOfSuggestions = 5
 const user: Participant = {
@@ -118,11 +119,7 @@ const refreshDisplayedEvents = ({
   }
 }
 
-interface Props {
-  setGatherList: React.Dispatch<React.SetStateAction<Gather[]>>
-  gatherList: Gather[]
-}
-const PlaceFinder: FC<Props> = ({ setGatherList }) => {
+const PlaceFinder: FC = () => {
   // Define state and refs
   const inputRef = useRef<HTMLInputElement | null>(null)
   const timeout = useRef<NodeJS.Timeout | null>(null)
@@ -130,10 +127,17 @@ const PlaceFinder: FC<Props> = ({ setGatherList }) => {
   const [inputValue, setInputValue] = useState<string>('')
   const [suggestions, setSuggestions] = useState<Array<PlaceFinderSuggestion>>([])
   const [suggestionsAreVisible, setSuggestionsAreVisible] = useState<boolean>(false)
-  const [selectedPlace, setSelectedPlace] = useState<google.maps.places.PlaceResult | null>(null)
-  const [selectedGather, setSelectedGather] = useState<Gather | null>(null)
-  const [modalOpen, setModalOpen] = useState<boolean>(false)
   const [, setBounds] = useState<google.maps.LatLngBounds | undefined | null>(null)
+
+  const {
+    setGatherList,
+    selectedPlace,
+    setSelectedPlace,
+    selectedGather,
+    setSelectedGather,
+    placeModalOpen,
+    setPlaceModalOpen,
+  } = React.useContext(DashboardContext)
 
   // Get google map services
   const map = useGoogleMap()
@@ -146,7 +150,7 @@ const PlaceFinder: FC<Props> = ({ setGatherList }) => {
         refreshDisplayedEvents({ map, setBounds, setGatherList })
       })
     }
-  }, [map])
+  }, [map, setGatherList, setBounds])
 
   // Update the user input value
   const handleInputChange = (event: ChangeEvent<HTMLInputElement>) => {
@@ -208,7 +212,7 @@ const PlaceFinder: FC<Props> = ({ setGatherList }) => {
         }
 
         setSelectedPlace(placeResult)
-        setModalOpen(true)
+        setPlaceModalOpen(true)
         const gathers = await getGather(placeResult)
         const gather = gathers[0]
 
@@ -261,11 +265,11 @@ const PlaceFinder: FC<Props> = ({ setGatherList }) => {
         handleInputChange={handleInputChange}
         selectSuggestion={selectSuggestion}
       ></Search>
-      {modalOpen && (
+      {placeModalOpen && (
         <GatherModal
           selectedPlace={selectedPlace}
           selectedGather={selectedGather}
-          setModalOpen={setModalOpen}
+          setModalOpen={setPlaceModalOpen}
           handleCreate={handleCreate}
           handleJoin={handleJoin}
         />

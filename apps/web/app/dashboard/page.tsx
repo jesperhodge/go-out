@@ -9,6 +9,7 @@ import PlaceFinder from '@web/components/PlaceFinder'
 import { GatherGallery } from '@web/components/GatherGallery'
 import { Toolbar } from '@web/components/Toolbar'
 import { Markers } from '@web/components/Markers'
+import { DashboardContext } from '@web/context/DashboardContext'
 
 const mapOptions = {
   center: { lat: 53.5582447, lng: 9.647645 },
@@ -52,6 +53,9 @@ const Dashboard: FunctionComponent<Record<string, unknown>> = () => {
     node && setMapContainer(node)
   }, [])
   const [gatherList, setGatherList] = useState<Gather[]>([])
+  const [selectedPlace, setSelectedPlace] = useState<google.maps.places.PlaceResult | null>(null)
+  const [selectedGather, setSelectedGather] = useState<Gather | null>(null)
+  const [placeModalOpen, setPlaceModalOpen] = useState<boolean>(false)
 
   useEffect(() => {
     getGathers(setGatherList)
@@ -65,13 +69,26 @@ const Dashboard: FunctionComponent<Record<string, unknown>> = () => {
       // Add the places library
       libraries={['places']}
     >
-      <div id="container">
-        <MapCanvas ref={mapRef} />
-        <Markers gatherList={gatherList} />
-        <PlaceFinder gatherList={gatherList} setGatherList={setGatherList} />
-        <GatherGallery gatherList={gatherList} />
-        <Toolbar />
-      </div>
+      <DashboardContext.Provider
+        value={{
+          gatherList,
+          setGatherList,
+          selectedPlace,
+          setSelectedPlace,
+          selectedGather,
+          setSelectedGather,
+          placeModalOpen,
+          setPlaceModalOpen,
+        }}
+      >
+        <div id="container">
+          <MapCanvas ref={mapRef} />
+          <Markers />
+          <PlaceFinder />
+          <GatherGallery gatherList={gatherList} />
+          <Toolbar />
+        </div>
+      </DashboardContext.Provider>
     </GoogleMapsProvider>
   )
 }

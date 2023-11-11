@@ -1,12 +1,34 @@
-import { FunctionComponent, useState, useEffect } from 'react'
+import { FC, useState, useEffect, useContext, useCallback } from 'react'
 import { useGoogleMap } from '@ubilabs/google-maps-react-hooks'
+import { DashboardContext } from '@web/context/DashboardContext'
 
 /**
  * Component to render all map markers
  */
-export const Markers: FunctionComponent<Record<string, any>> = ({ gatherList }) => {
+export const Markers: FC = () => {
   // Get the global map instance with the useGoogleMap hook
   const map = useGoogleMap()
+  const { gatherList, setSelectedGather, setPlaceModalOpen } = useContext(DashboardContext)
+
+  // Handle marker clicks
+  const onMarkerClick = useCallback(
+    (marker: google.maps.Marker) => {
+      const title = marker.getTitle()
+      const latLng = marker.getPosition()
+      const gather = gatherList.find((gather) => {
+        return (
+          (gather.name === title || gather.googlePlace.name === title) &&
+          gather.googlePlace.lat === latLng?.lat() &&
+          gather.googlePlace.lng === latLng?.lng()
+        )
+      })
+      if (gather) {
+        setSelectedGather(gather)
+        setPlaceModalOpen(true)
+      }
+    },
+    [gatherList, setSelectedGather],
+  )
 
   const [, setMarkers] = useState<Array<google.maps.Marker>>([])
 
@@ -19,7 +41,7 @@ export const Markers: FunctionComponent<Record<string, any>> = ({ gatherList }) 
     const initialBounds = new google.maps.LatLngBounds()
 
     const gatherMarkers: Array<google.maps.Marker> = gatherList.map((gather: any) => {
-      const name = gather.name
+      const name = gather.name || gather.googlePlace.name
       const position = {
         lat: gather.googlePlace.lat,
         lng: gather.googlePlace.lng,
@@ -37,13 +59,19 @@ export const Markers: FunctionComponent<Record<string, any>> = ({ gatherList }) 
       return new google.maps.Marker(markerOptions)
     })
 
+    gatherMarkers.forEach((marker) => {
+      marker.addListener('click', () => {
+        onMarkerClick(marker)
+      })
+    })
+
     setMarkers(gatherMarkers)
 
     // Clean up markers
     return () => {
       gatherMarkers.forEach((marker) => marker.setMap(null))
     }
-  }, [map, gatherList])
+  }, [map, gatherList, onMarkerClick])
 
   return null
 }
