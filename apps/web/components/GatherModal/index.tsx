@@ -1,5 +1,6 @@
 import { Gather } from '@customTypes/gather'
-import React, { FC, useState } from 'react'
+import { DashboardContext } from '@web/context/DashboardContext'
+import React, { FC, useContext, useState } from 'react'
 
 interface Props {
   setModalOpen: React.Dispatch<React.SetStateAction<boolean>>
@@ -11,6 +12,7 @@ interface Props {
 export const GatherModal: FC<Props> = ({ setModalOpen, selectedPlace, selectedGather, handleCreate, handleJoin }) => {
   const [name, setName] = useState<string | null>(null)
   const [valid, setValid] = useState<boolean | null>(null)
+  const { availableGathers, setSelectedGather } = useContext(DashboardContext)
 
   const handleClick = () => {
     if (!selectedPlace) {
@@ -64,6 +66,25 @@ export const GatherModal: FC<Props> = ({ setModalOpen, selectedPlace, selectedGa
             </>
           )}
         </div>
+        {!selectedGather && availableGathers.length > 0 && (
+          <div>
+            <b>availableGathers</b>
+            {availableGathers.map((gather, i) => (
+              <div key={`gather-${gather?.name}-${i}`}>
+                <p>Name: {gather?.name || gather?.googlePlace?.name}</p>
+                <p>Location: {gather?.googlePlace?.formatted_address}</p>
+                <button
+                  className="inline-flex justify-center rounded-lg text-sm font-semibold py-3 px-4 bg-slate-900 text-white hover:bg-slate-700"
+                  onClick={() => {
+                    setSelectedGather(gather)
+                  }}
+                >
+                  Select
+                </button>
+              </div>
+            ))}
+          </div>
+        )}
         {selectedGather && (
           <div>
             <b>selectedGather</b>

@@ -55,7 +55,16 @@ const Dashboard: FunctionComponent<Record<string, unknown>> = () => {
   const [gatherList, setGatherList] = useState<Gather[]>([])
   const [selectedPlace, setSelectedPlace] = useState<google.maps.places.PlaceResult | null>(null)
   const [selectedGather, setSelectedGather] = useState<Gather | null>(null)
-  const [placeModalOpen, setPlaceModalOpen] = useState<boolean>(false)
+  const [placeModalOpen, setStatePlaceModalOpen] = useState<boolean>(false)
+  const [availableGathers, setAvailableGathers] = useState<Gather[]>([])
+
+  const setPlaceModalOpen = (open: boolean) => {
+    setStatePlaceModalOpen(open)
+    if (!open) {
+      setAvailableGathers([])
+      setSelectedGather(null)
+    }
+  }
 
   useEffect(() => {
     getGathers(setGatherList)
@@ -79,6 +88,8 @@ const Dashboard: FunctionComponent<Record<string, unknown>> = () => {
           setSelectedGather,
           placeModalOpen,
           setPlaceModalOpen,
+          availableGathers,
+          setAvailableGathers,
         }}
       >
         <div id="container">

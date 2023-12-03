@@ -8,26 +8,37 @@ import { DashboardContext } from '@web/context/DashboardContext'
 export const Markers: FC = () => {
   // Get the global map instance with the useGoogleMap hook
   const map = useGoogleMap()
-  const { gatherList, setSelectedGather, setPlaceModalOpen } = useContext(DashboardContext)
+  const { gatherList, setSelectedGather, setSelectedPlace, setPlaceModalOpen, setAvailableGathers } =
+    useContext(DashboardContext)
 
   // Handle marker clicks
   const onMarkerClick = useCallback(
     (marker: google.maps.Marker) => {
       const title = marker.getTitle()
       const latLng = marker.getPosition()
-      const gather = gatherList.find((gather) => {
+      const gathers = gatherList.filter((gather) => {
         return (
-          (gather.name === title || gather.googlePlace.name === title) &&
-          gather.googlePlace.lat === latLng?.lat() &&
-          gather.googlePlace.lng === latLng?.lng()
+          gather.googlePlace.name === title ||
+          (gather.googlePlace.lat === latLng?.lat() && gather.googlePlace.lng === latLng?.lng())
         )
       })
-      if (gather) {
+      setSelectedPlace(gathers[0]?.googlePlace || null)
+      console.log('gathers here: ', gathers)
+
+      if (gathers.length === 0) {
+        return
+      }
+      if (gathers.length === 1) {
+        const gather = gathers[0]
         setSelectedGather(gather)
         setPlaceModalOpen(true)
       }
+      if (gathers.length > 1) {
+        setAvailableGathers(gathers)
+        setPlaceModalOpen(true)
+      }
     },
-    [gatherList, setSelectedGather],
+    [gatherList, setSelectedGather, setSelectedPlace, setPlaceModalOpen, setAvailableGathers],
   )
 
   const [, setMarkers] = useState<Array<google.maps.Marker>>([])
