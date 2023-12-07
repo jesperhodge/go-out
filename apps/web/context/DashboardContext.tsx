@@ -9,7 +9,7 @@ export const DashboardContext = createContext<{
   selectedGather: Gather | null
   setSelectedGather: Dispatch<SetStateAction<Gather | null>>
   placeModalOpen: boolean
-  setPlaceModalOpen: Dispatch<SetStateAction<boolean>>
+  setPlaceModalOpen: (open: boolean) => void
   availableGathers: Gather[]
   setAvailableGathers: Dispatch<SetStateAction<Gather[]>>
 }>({
