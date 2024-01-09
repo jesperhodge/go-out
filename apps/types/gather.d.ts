@@ -22,4 +22,6 @@ export interface Gather {
   name?: string
   googlePlace: GatherLocation
   participants: Participant[]
+  description?: string
+  pictures?: string[]
 }

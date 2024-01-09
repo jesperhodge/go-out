@@ -21,6 +21,8 @@ export class GathersService {
     const data = {
       name: gatherDto.gather.name || 'Placeholder',
       date: gatherDto.gather.date && new Date(gatherDto.gather.date),
+      description: gatherDto.gather.description,
+      pictures: gatherDto.gather.pictures || [],
       participants: {
         connect: [{ id: CURRENT_USER_PLACEHOLDER_ID }],
       },
@@ -57,7 +59,7 @@ export class GathersService {
   async findAll(query: ListAllEntitiesDto): Promise<Gather[]> {
     console.log('listAllEntitiesDto: ', query)
 
-    const bounds = JSON.parse(query.bounds as unknown as string)
+    const bounds = query.bounds ? JSON.parse(query.bounds as unknown as string) : undefined
 
     const googleLocationBoundsQuery = bounds
       ? {
@@ -94,7 +96,7 @@ export class GathersService {
 
     console.log('searchFilter: ', searchFilter)
 
-    return this.prisma.gather.findMany({
+    const res = await this.prisma.gather.findMany({
       where: searchFilter,
       take: limit,
       include: {
@@ -103,6 +105,9 @@ export class GathersService {
         googlePlace: true,
       },
     })
+    console.log('findAll result: ', res)
+
+    return res
   }
 
   async findOne(id: number): Promise<Gather | null> {

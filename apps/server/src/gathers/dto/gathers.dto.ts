@@ -10,6 +10,8 @@ export class GatherWithoutId {
   date?: string
   googlePlace: GatherLocation
   participants?: Participant[]
+  description?: string
+  pictures?: string[]
 }
 
 export class JoinGatherDto {
@@ -50,4 +52,6 @@ export interface Gather {
   name?: string
   googlePlace: GatherLocation
   participants: Participant[]
+  description?: string
+  pictures?: string[]
 }

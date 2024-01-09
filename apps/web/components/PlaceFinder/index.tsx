@@ -15,6 +15,12 @@ const user: Participant = {
 }
 const baseUrl = 'http://localhost:4000'
 
+interface HandleCreateArgs {
+  name: string
+  description: string
+  pictures: string[]
+}
+
 const encodeParams = (params: Record<string, any>): string => {
   return Object.keys(params)
     .map((key) => `${key}=${encodeURIComponent(params[key])}`)
@@ -54,11 +60,18 @@ const getGathersFromBounds = async (bounds: google.maps.LatLngBounds) => {
   return data
 }
 
-const createGather = async (googlePlace: google.maps.places.PlaceResult, name: string) => {
+const createGather = async (
+  googlePlace: google.maps.places.PlaceResult,
+  name: string,
+  description: string,
+  pictures: string[],
+) => {
   console.log('createGather googlePlace: ', googlePlace)
 
   const newGather: Gather = {
     name,
+    description,
+    pictures,
     googlePlace: {
       googleId: googlePlace.place_id,
       location: googlePlace.geometry?.location?.toString(),
@@ -236,10 +249,10 @@ const PlaceFinder: FC = () => {
     )
   }
 
-  const handleCreate = async ({ name }: { name: string }) => {
+  const handleCreate = async ({ name, description, pictures }: HandleCreateArgs) => {
     console.log('selectedPlace: ', selectedPlace)
     if (selectedPlace) {
-      const gather = await createGather(selectedPlace, name)
+      const gather = await createGather(selectedPlace, name, description, pictures)
       setSelectedGather(gather)
       if (map) refreshDisplayedEvents({ map, setBounds, setGatherList })
     }

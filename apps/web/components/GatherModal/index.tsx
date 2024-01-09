@@ -3,14 +3,16 @@ import { DashboardContext } from '@web/context/DashboardContext'
 import React, { FC, useContext, useState } from 'react'
 
 interface Props {
-  setModalOpen: React.Dispatch<React.SetStateAction<boolean>>
+  setModalOpen: (open: boolean) => void
   selectedPlace: google.maps.places.PlaceResult | null
   selectedGather: Gather | null
-  handleCreate: (_: { name: string }) => void
+  handleCreate: (_: { name: string; description: string; pictures: string[] }) => void
   handleJoin: () => void
 }
 export const GatherModal: FC<Props> = ({ setModalOpen, selectedPlace, selectedGather, handleCreate, handleJoin }) => {
   const [name, setName] = useState<string | null>(null)
+  const [description, setDescription] = useState<string | null>(null)
+  const [pictures, setPictures] = useState<string[] | null>(null)
   const [valid, setValid] = useState<boolean | null>(null)
   const { availableGathers, setSelectedGather } = useContext(DashboardContext)
 
@@ -24,7 +26,7 @@ export const GatherModal: FC<Props> = ({ setModalOpen, selectedPlace, selectedGa
       return
     }
 
-    handleCreate({ name })
+    handleCreate({ name, description, pictures })
   }
 
   return (
@@ -55,6 +57,24 @@ export const GatherModal: FC<Props> = ({ setModalOpen, selectedPlace, selectedGa
                   setName(e.target.value)
                 }}
                 placeholder="Event Name"
+                className={`border ${valid === false ? 'border-red-600' : 'border-slate-400'} mb-4`}
+              />
+              {/* input field for description */}
+              <input
+                type="text"
+                onChange={(e) => {
+                  setDescription(e.target.value)
+                }}
+                placeholder="Description"
+                className={`border ${valid === false ? 'border-red-600' : 'border-slate-400'} mb-4`}
+              />
+              {/* input field picture as url string */}
+              <input
+                type="text"
+                onChange={(e) => {
+                  setPictures([e.target.value])
+                }}
+                placeholder="Pictures"
                 className={`border ${valid === false ? 'border-red-600' : 'border-slate-400'} mb-4`}
               />
               <button
