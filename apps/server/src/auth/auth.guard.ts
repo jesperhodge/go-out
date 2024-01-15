@@ -4,7 +4,7 @@ import { Observable } from 'rxjs'
 
 @Injectable()
 export class AuthGuard implements CanActivate {
-  private readonly requireAuth = ClerkExpressRequireAuth({ authorizedParties: ['http://localhost:3000'] })
+  private readonly requireAuth = ClerkExpressRequireAuth({})
 
   canActivate(context: ExecutionContext): boolean | Promise<boolean> | Observable<boolean> {
     const request = context.switchToHttp().getRequest()

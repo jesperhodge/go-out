@@ -11,6 +11,7 @@ import { GatherGallery } from '@web/components/GatherGallery'
 import { Toolbar } from '@web/components/Toolbar'
 import { Markers } from '@web/components/Markers'
 import { DashboardContext } from '@web/context/DashboardContext'
+import { useAuth } from '@clerk/nextjs'
 
 const mapOptions = {
   center: { lat: 53.5582447, lng: 9.647645 },
@@ -27,12 +28,14 @@ const encodeParams = (params: Record<string, any>): string => {
     .join('&')
 }
 
-const getGathers = async (setGathers: Dispatch<SetStateAction<Gather[]>>) => {
+const getGathers = async (setGathers: Dispatch<SetStateAction<Gather[]>>, getToken: any) => {
   const params = {
     limit: 5,
   }
   const queryString = encodeParams(params)
-  const response = await fetch(`${baseUrl}/gathers?${queryString}`)
+  const response = await fetch(`${baseUrl}/gathers?${queryString}`, {
+    headers: { Authorization: `Bearer ${await getToken()}` },
+  })
   console.log('getGather response: ', response)
   const data = await response.json()
   console.log('getGather data: ', data)
@@ -48,7 +51,7 @@ const getGathers = async (setGathers: Dispatch<SetStateAction<Gather[]>>) => {
   return data
 }
 
-const Home: FunctionComponent<Record<string, unknown>> = () => {
+const Dashboard: FunctionComponent<Record<string, unknown>> = () => {
   const [mapContainer, setMapContainer] = useState<HTMLDivElement | null>(null)
   const mapRef = useCallback((node: React.SetStateAction<HTMLDivElement | null>) => {
     node && setMapContainer(node)
@@ -58,6 +61,7 @@ const Home: FunctionComponent<Record<string, unknown>> = () => {
   const [selectedGather, setSelectedGather] = useState<Gather | null>(null)
   const [placeModalOpen, setStatePlaceModalOpen] = useState<boolean>(false)
   const [availableGathers, setAvailableGathers] = useState<Gather[]>([])
+  const { getToken } = useAuth()
 
   const setPlaceModalOpen = (open: boolean) => {
     setStatePlaceModalOpen(open)
@@ -68,7 +72,7 @@ const Home: FunctionComponent<Record<string, unknown>> = () => {
   }
 
   useEffect(() => {
-    getGathers(setGatherList)
+    getGathers(setGatherList, getToken)
   }, [])
 
   return (
@@ -119,4 +123,4 @@ const Home: FunctionComponent<Record<string, unknown>> = () => {
   )
 }
 
-export default Home
+export default Dashboard
