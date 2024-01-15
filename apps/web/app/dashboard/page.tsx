@@ -2,6 +2,7 @@
 
 import React, { FunctionComponent, useState, useCallback, useEffect, Dispatch, SetStateAction } from 'react'
 import { GoogleMapsProvider } from '@ubilabs/google-maps-react-hooks'
+import { UserButton } from '@clerk/nextjs'
 
 import { Gather } from '@customTypes/gather'
 import MapCanvas from '@web/components/MapCanvas'
@@ -96,7 +97,7 @@ const Dashboard: FunctionComponent<Record<string, unknown>> = () => {
         <div className="sticky top-0 z-10 bg-white dark:bg-neutral-900 border-b border-neutral-200 dark:border-neutral-800 h-12">
           <div className="flex flex-row items-center justify-between px-4 py-2">
             <div className="flex flex-row items-center gap-4">
-              <div className="w-8 h-8 bg-neutral-100 rounded-full"></div>
+              <UserButton afterSignOutUrl="/" />
               <h1 className="text-xl font-bold">Go Out</h1>
             </div>
             <div className="flex flex-row items-center gap-4">

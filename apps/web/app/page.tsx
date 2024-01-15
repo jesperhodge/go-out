@@ -1,113 +1,122 @@
-import Image from 'next/image'
+'use client'
 
-export default function Home() {
+import React, { FunctionComponent, useState, useCallback, useEffect, Dispatch, SetStateAction } from 'react'
+import { GoogleMapsProvider } from '@ubilabs/google-maps-react-hooks'
+import { UserButton } from '@clerk/nextjs'
+
+import { Gather } from '@customTypes/gather'
+import MapCanvas from '@web/components/MapCanvas'
+import PlaceFinder from '@web/components/PlaceFinder'
+import { GatherGallery } from '@web/components/GatherGallery'
+import { Toolbar } from '@web/components/Toolbar'
+import { Markers } from '@web/components/Markers'
+import { DashboardContext } from '@web/context/DashboardContext'
+
+const mapOptions = {
+  center: { lat: 53.5582447, lng: 9.647645 },
+  zoom: 6,
+  disableDefaultUI: true,
+  zoomControl: false,
+}
+
+const baseUrl = 'http://localhost:4000'
+
+const encodeParams = (params: Record<string, any>): string => {
+  return Object.keys(params)
+    .map((key) => `${key}=${encodeURIComponent(params[key])}`)
+    .join('&')
+}
+
+const getGathers = async (setGathers: Dispatch<SetStateAction<Gather[]>>) => {
+  const params = {
+    limit: 5,
+  }
+  const queryString = encodeParams(params)
+  const response = await fetch(`${baseUrl}/gathers?${queryString}`)
+  console.log('getGather response: ', response)
+  const data = await response.json()
+  console.log('getGather data: ', data)
+
+  if (data.error) {
+    console.log('error: ', data.error)
+    return
+  }
+  if (!Array.isArray(data)) {
+    return
+  }
+  setGathers(data)
+  return data
+}
+
+const Home: FunctionComponent<Record<string, unknown>> = () => {
+  const [mapContainer, setMapContainer] = useState<HTMLDivElement | null>(null)
+  const mapRef = useCallback((node: React.SetStateAction<HTMLDivElement | null>) => {
+    node && setMapContainer(node)
+  }, [])
+  const [gatherList, setGatherList] = useState<Gather[]>([])
+  const [selectedPlace, setSelectedPlace] = useState<google.maps.places.PlaceResult | null>(null)
+  const [selectedGather, setSelectedGather] = useState<Gather | null>(null)
+  const [placeModalOpen, setStatePlaceModalOpen] = useState<boolean>(false)
+  const [availableGathers, setAvailableGathers] = useState<Gather[]>([])
+
+  const setPlaceModalOpen = (open: boolean) => {
+    setStatePlaceModalOpen(open)
+    if (!open) {
+      setAvailableGathers([])
+      setSelectedGather(null)
+    }
+  }
+
+  useEffect(() => {
+    getGathers(setGatherList)
+  }, [])
+
   return (
-    <main className="flex min-h-screen flex-col items-center justify-between p-24">
-      <div className="z-10 max-w-5xl w-full items-center justify-between font-mono text-sm lg:flex">
-        <p className="fixed left-0 top-0 flex w-full justify-center border-b border-gray-300 bg-gradient-to-b from-zinc-200 pb-6 pt-8 backdrop-blur-2xl dark:border-neutral-800 dark:bg-zinc-800/30 dark:from-inherit lg:static lg:w-auto  lg:rounded-xl lg:border lg:bg-gray-200 lg:p-4 lg:dark:bg-zinc-800/30">
-          Get started by editing&nbsp;
-          <code className="font-mono font-bold">app/page.tsx</code>
-        </p>
-        <div className="fixed bottom-0 left-0 flex h-48 w-full items-end justify-center bg-gradient-to-t from-white via-white dark:from-black dark:via-black lg:static lg:h-auto lg:w-auto lg:bg-none">
-          <a
-            className="pointer-events-none flex place-items-center gap-2 p-8 lg:pointer-events-auto lg:p-0"
-            href="https://vercel.com?utm_source=create-next-app&utm_medium=appdir-template&utm_campaign=create-next-app"
-            target="_blank"
-            rel="noopener noreferrer"
-          >
-            By{' '}
-            <Image
-              src="/vercel.svg"
-              alt="Vercel Logo"
-              className="dark:invert"
-              width={100}
-              height={24}
-              priority
-            />
-          </a>
+    <GoogleMapsProvider
+      googleMapsAPIKey={process.env.NEXT_PUBLIC_GOOGLE_MAPS_API_KEY || ''}
+      mapContainer={mapContainer}
+      mapOptions={mapOptions}
+      // Add the places library
+      libraries={['places']}
+    >
+      <DashboardContext.Provider
+        value={{
+          gatherList,
+          setGatherList,
+          selectedPlace,
+          setSelectedPlace,
+          selectedGather,
+          setSelectedGather,
+          placeModalOpen,
+          setPlaceModalOpen,
+          availableGathers,
+          setAvailableGathers,
+        }}
+      >
+        {/* sticky header with hamburger */}
+        <div className="sticky top-0 z-10 bg-white dark:bg-neutral-900 border-b border-neutral-200 dark:border-neutral-800 h-12">
+          <div className="flex flex-row items-center justify-between px-4 py-2">
+            <div className="flex flex-row items-center gap-4">
+              <UserButton afterSignOutUrl="/" />
+              <h1 className="text-xl font-bold">Go Out</h1>
+            </div>
+            <div className="flex flex-row items-center gap-4">
+              <button className="w-8 h-8 bg-neutral-100 rounded-full"></button>
+              <button className="w-8 h-8 bg-neutral-100 rounded-full"></button>
+              <button className="w-8 h-8 bg-neutral-100 rounded-full"></button>
+            </div>
+          </div>
         </div>
-      </div>
-
-      <div className="relative flex place-items-center before:absolute before:h-[300px] before:w-[480px] before:-translate-x-1/2 before:rounded-full before:bg-gradient-radial before:from-white before:to-transparent before:blur-2xl before:content-[''] after:absolute after:-z-20 after:h-[180px] after:w-[240px] after:translate-x-1/3 after:bg-gradient-conic after:from-sky-200 after:via-blue-200 after:blur-2xl after:content-[''] before:dark:bg-gradient-to-br before:dark:from-transparent before:dark:to-blue-700 before:dark:opacity-10 after:dark:from-sky-900 after:dark:via-[#0141ff] after:dark:opacity-40 before:lg:h-[360px] z-[-1]">
-        <Image
-          className="relative dark:drop-shadow-[0_0_0.3rem_#ffffff70] dark:invert"
-          src="/next.svg"
-          alt="Next.js Logo"
-          width={180}
-          height={37}
-          priority
-        />
-      </div>
-
-      <div className="mb-32 grid text-center lg:max-w-5xl lg:w-full lg:mb-0 lg:grid-cols-4 lg:text-left">
-        <a
-          href="https://nextjs.org/docs?utm_source=create-next-app&utm_medium=appdir-template&utm_campaign=create-next-app"
-          className="group rounded-lg border border-transparent px-5 py-4 transition-colors hover:border-gray-300 hover:bg-gray-100 hover:dark:border-neutral-700 hover:dark:bg-neutral-800/30"
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          <h2 className={`mb-3 text-2xl font-semibold`}>
-            Docs{' '}
-            <span className="inline-block transition-transform group-hover:translate-x-1 motion-reduce:transform-none">
-              -&gt;
-            </span>
-          </h2>
-          <p className={`m-0 max-w-[30ch] text-sm opacity-50`}>
-            Find in-depth information about Next.js features and API.
-          </p>
-        </a>
-
-        <a
-          href="https://nextjs.org/learn?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-          className="group rounded-lg border border-transparent px-5 py-4 transition-colors hover:border-gray-300 hover:bg-gray-100 hover:dark:border-neutral-700 hover:dark:bg-neutral-800/30"
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          <h2 className={`mb-3 text-2xl font-semibold`}>
-            Learn{' '}
-            <span className="inline-block transition-transform group-hover:translate-x-1 motion-reduce:transform-none">
-              -&gt;
-            </span>
-          </h2>
-          <p className={`m-0 max-w-[30ch] text-sm opacity-50`}>
-            Learn about Next.js in an interactive course with&nbsp;quizzes!
-          </p>
-        </a>
-
-        <a
-          href="https://vercel.com/templates?framework=next.js&utm_source=create-next-app&utm_medium=appdir-template&utm_campaign=create-next-app"
-          className="group rounded-lg border border-transparent px-5 py-4 transition-colors hover:border-gray-300 hover:bg-gray-100 hover:dark:border-neutral-700 hover:dark:bg-neutral-800/30"
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          <h2 className={`mb-3 text-2xl font-semibold`}>
-            Templates{' '}
-            <span className="inline-block transition-transform group-hover:translate-x-1 motion-reduce:transform-none">
-              -&gt;
-            </span>
-          </h2>
-          <p className={`m-0 max-w-[30ch] text-sm opacity-50`}>
-            Explore the Next.js 13 playground.
-          </p>
-        </a>
-
-        <a
-          href="https://vercel.com/new?utm_source=create-next-app&utm_medium=appdir-template&utm_campaign=create-next-app"
-          className="group rounded-lg border border-transparent px-5 py-4 transition-colors hover:border-gray-300 hover:bg-gray-100 hover:dark:border-neutral-700 hover:dark:bg-neutral-800/30"
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          <h2 className={`mb-3 text-2xl font-semibold`}>
-            Deploy{' '}
-            <span className="inline-block transition-transform group-hover:translate-x-1 motion-reduce:transform-none">
-              -&gt;
-            </span>
-          </h2>
-          <p className={`m-0 max-w-[30ch] text-sm opacity-50`}>
-            Instantly deploy your Next.js site to a shareable URL with Vercel.
-          </p>
-        </a>
-      </div>
-    </main>
+        <div id="container" className="relative">
+          <MapCanvas ref={mapRef} />
+          <Markers />
+          <PlaceFinder />
+          <GatherGallery gatherList={gatherList} />
+          <Toolbar />
+        </div>
+      </DashboardContext.Provider>
+    </GoogleMapsProvider>
   )
 }
+
+export default Home
