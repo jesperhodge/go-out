@@ -1,12 +1,25 @@
-import { Body, Query, Controller, Get, Param, Post, NotFoundException, UsePipes, ValidationPipe } from '@nestjs/common'
+import {
+  Body,
+  Query,
+  Controller,
+  Get,
+  Param,
+  Post,
+  NotFoundException,
+  UsePipes,
+  ValidationPipe,
+  UseGuards,
+} from '@nestjs/common'
 import { CreateGatherDto, ListAllEntitiesDto, JoinGatherDto } from './dto/gathers.dto'
 import { GathersService } from './gathers.service'
 import { Gather } from '@prisma/client'
+import { AuthGuard } from '@server/auth/auth.guard'
 
 @Controller('gathers')
 export class GathersController {
   constructor(private gathersService: GathersService) {}
 
+  @UseGuards(AuthGuard)
   @Get()
   async findAll(@Query() query: ListAllEntitiesDto): Promise<Gather[]> {
     console.log(query)
