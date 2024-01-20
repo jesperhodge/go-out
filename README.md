@@ -26,4 +26,4 @@ A: The features have a lot of overlap, but it should be a very different experie
 - add your Google Maps API key to .env
 - `pnpm install`
 - `pnpm dev` (runs "docker compose up" and local servers)
-- navigate to `localhost:3000/dashboard`. You may need to refresh one or multiple times until you see google maps load; needs debugging.
+- navigate to `localhost:3000`. You may need to refresh one or multiple times until you see google maps load; needs debugging.
