@@ -23,7 +23,7 @@ export const Markers: FC = () => {
         )
       })
       setSelectedPlace(gathers[0]?.googlePlace || null)
-      console.log('gathers here: ', gathers)
+      
 
       if (gathers.length === 0) {
         return

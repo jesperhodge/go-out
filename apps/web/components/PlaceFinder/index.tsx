@@ -7,13 +7,13 @@ import './index.css'
 import { GatherModal } from '../GatherModal'
 import { Search } from '../Search'
 import { DashboardContext } from '@web/context/DashboardContext'
+import { useClient } from '@web/apiClient'
 
 const maxNumberOfSuggestions = 5
 const user: Participant = {
   id: 2,
   name: 'Jesper Hodge',
 }
-const baseUrl = 'http://localhost:4000'
 
 interface HandleCreateArgs {
   name: string
@@ -21,106 +21,16 @@ interface HandleCreateArgs {
   pictures: string[]
 }
 
-const encodeParams = (params: Record<string, any>): string => {
-  return Object.keys(params)
-    .map((key) => `${key}=${encodeURIComponent(params[key])}`)
-    .join('&')
-}
-
-const getGather = async (googlePlace: google.maps.places.PlaceResult) => {
-  const params = {
-    googleId: googlePlace.place_id,
-    location: googlePlace.geometry?.location?.toString(),
-  }
-  const queryString = encodeParams(params)
-  const response = await fetch(`${baseUrl}/gathers?${queryString}`)
-  console.log('getGather response: ', response)
-  if (response.status !== 200) {
-    return []
-  }
-  const data = await response.json()
-  console.log('getGather data: ', data)
-  return data
-}
-
-const getGathersFromBounds = async (bounds: google.maps.LatLngBounds) => {
-  const params = {
-    bounds: JSON.stringify(bounds.toJSON()),
-  }
-  const queryString = encodeParams(params)
-  const response = await fetch(`${baseUrl}/gathers?${queryString}`)
-
-  if (response.status !== 200) {
-    return []
-  }
-
-  console.log('getGather response: ', response)
-  const data = await response.json()
-  console.log('getGather data: ', data)
-  return data
-}
-
-const createGather = async (
-  googlePlace: google.maps.places.PlaceResult,
-  name: string,
-  description: string,
-  pictures: string[],
-) => {
-  console.log('createGather googlePlace: ', googlePlace)
-
-  const newGather: Gather = {
-    name,
-    description,
-    pictures,
-    googlePlace: {
-      googleId: googlePlace.place_id,
-      location: googlePlace.geometry?.location?.toString(),
-      name: googlePlace.name,
-      formatted_address: googlePlace.formatted_address,
-      lat: googlePlace.geometry?.location?.lat(),
-      lng: googlePlace.geometry?.location?.lng(),
-    },
-    participants: [user],
-  }
-
-  console.log('body: ', JSON.stringify({ gather: newGather }))
-
-  const response = await fetch(`${baseUrl}/gathers`, {
-    method: 'POST',
-    headers: {
-      'Content-Type': 'application/json',
-    },
-    body: JSON.stringify({ gather: newGather }),
-  })
-  console.log('createGather response: ', response)
-  const data = await response.json()
-  console.log('createGather data: ', data)
-
-  return data
-}
-
-const joinGather = async (gatherId: string, newParticipant: Participant) => {
-  const response = await fetch(`${baseUrl}/gathers/join`, {
-    method: 'POST',
-    headers: {
-      'Content-Type': 'application/json',
-    },
-    body: JSON.stringify({ gatherId: gatherId, userId: newParticipant.id }),
-  })
-  console.log('joinGather response: ', response)
-  const data = await response.json()
-  console.log('joinGather data: ', data)
-  return data
-}
-
 const refreshDisplayedEvents = ({
   map,
   setBounds,
   setGatherList,
+  getGathersFromBounds,
 }: {
   map: google.maps.Map
   setBounds: React.Dispatch<React.SetStateAction<google.maps.LatLngBounds | undefined | null>>
   setGatherList: React.Dispatch<React.SetStateAction<Gather[]>>
+  getGathersFromBounds: (bounds: google.maps.LatLngBounds) => Promise<any>
 }) => {
   const bounds = map.getBounds()
 
@@ -141,6 +51,7 @@ const PlaceFinder: FC = () => {
   const [suggestions, setSuggestions] = useState<Array<PlaceFinderSuggestion>>([])
   const [suggestionsAreVisible, setSuggestionsAreVisible] = useState<boolean>(false)
   const [, setBounds] = useState<google.maps.LatLngBounds | undefined | null>(null)
+  const { getGather, getGathersFromBounds, createGather, joinGather } = useClient()
 
   const {
     setGatherList,
@@ -160,10 +71,10 @@ const PlaceFinder: FC = () => {
   useEffect(() => {
     if (map) {
       map.addListener('bounds_changed', () => {
-        refreshDisplayedEvents({ map, setBounds, setGatherList })
+        refreshDisplayedEvents({ map, setBounds, setGatherList, getGathersFromBounds })
       })
     }
-  }, [map, setGatherList, setBounds])
+  }, [map, setGatherList, setBounds, getGathersFromBounds])
 
   // Update the user input value
   const handleInputChange = (event: ChangeEvent<HTMLInputElement>) => {
@@ -236,8 +147,6 @@ const PlaceFinder: FC = () => {
           setSelectedGather(null)
         }
 
-        console.log('placeResult: ', placeResult)
-
         // Get position of the suggestion to move map
         const position = placeResult.geometry?.location
 
@@ -250,11 +159,10 @@ const PlaceFinder: FC = () => {
   }
 
   const handleCreate = async ({ name, description, pictures }: HandleCreateArgs) => {
-    console.log('selectedPlace: ', selectedPlace)
     if (selectedPlace) {
       const gather = await createGather(selectedPlace, name, description, pictures)
       setSelectedGather(gather)
-      if (map) refreshDisplayedEvents({ map, setBounds, setGatherList })
+      if (map) refreshDisplayedEvents({ map, setBounds, setGatherList, getGathersFromBounds })
     }
   }
 

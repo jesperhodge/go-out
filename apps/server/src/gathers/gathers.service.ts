@@ -10,8 +10,6 @@ export class GathersService {
   constructor(private prisma: PrismaService) {}
 
   async create(gatherDto: CreateGatherDto): Promise<Gather> {
-    console.log('createGatherDto: ', gatherDto)
-
     // extract lat and lng from location string "(lat, lng)".
     // For example, "(37.422, -122.084)" => [37.422, -122.084]
     const location = gatherDto.gather.googlePlace.location
@@ -57,8 +55,6 @@ export class GathersService {
   }
 
   async findAll(query: ListAllEntitiesDto): Promise<Gather[]> {
-    console.log('listAllEntitiesDto: ', query)
-
     const bounds = query.bounds ? JSON.parse(query.bounds as unknown as string) : undefined
 
     const googleLocationBoundsQuery = bounds
@@ -94,8 +90,6 @@ export class GathersService {
 
     const limit = query.limit ? parseInt(query.limit as unknown as string) : 100
 
-    console.log('searchFilter: ', searchFilter)
-
     const res = await this.prisma.gather.findMany({
       where: searchFilter,
       take: limit,
@@ -105,7 +99,6 @@ export class GathersService {
         googlePlace: true,
       },
     })
-    console.log('findAll result: ', res)
 
     return res
   }

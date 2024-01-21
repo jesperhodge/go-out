@@ -11,44 +11,13 @@ import { GatherGallery } from '@web/components/GatherGallery'
 import { Toolbar } from '@web/components/Toolbar'
 import { Markers } from '@web/components/Markers'
 import { DashboardContext } from '@web/context/DashboardContext'
-import { useAuth } from '@clerk/nextjs'
+import { useClient } from '@web/apiClient'
 
 const mapOptions = {
   center: { lat: 53.5582447, lng: 9.647645 },
   zoom: 6,
   disableDefaultUI: true,
   zoomControl: false,
-}
-
-const baseUrl = 'http://localhost:4000'
-
-const encodeParams = (params: Record<string, any>): string => {
-  return Object.keys(params)
-    .map((key) => `${key}=${encodeURIComponent(params[key])}`)
-    .join('&')
-}
-
-const getGathers = async (setGathers: Dispatch<SetStateAction<Gather[]>>, getToken: any) => {
-  const params = {
-    limit: 5,
-  }
-  const queryString = encodeParams(params)
-  const response = await fetch(`${baseUrl}/gathers?${queryString}`, {
-    headers: { Authorization: `Bearer ${await getToken()}` },
-  })
-  console.log('getGather response: ', response)
-  const data = await response.json()
-  console.log('getGather data: ', data)
-
-  if (data.error) {
-    console.log('error: ', data.error)
-    return
-  }
-  if (!Array.isArray(data)) {
-    return
-  }
-  setGathers(data)
-  return data
 }
 
 const Dashboard: FunctionComponent<Record<string, unknown>> = () => {
@@ -61,7 +30,7 @@ const Dashboard: FunctionComponent<Record<string, unknown>> = () => {
   const [selectedGather, setSelectedGather] = useState<Gather | null>(null)
   const [placeModalOpen, setStatePlaceModalOpen] = useState<boolean>(false)
   const [availableGathers, setAvailableGathers] = useState<Gather[]>([])
-  const { getToken } = useAuth()
+  const { getGathers } = useClient()
 
   const setPlaceModalOpen = (open: boolean) => {
     setStatePlaceModalOpen(open)
@@ -72,8 +41,12 @@ const Dashboard: FunctionComponent<Record<string, unknown>> = () => {
   }
 
   useEffect(() => {
-    getGathers(setGatherList, getToken)
-  }, [])
+    const fetchGathers = async () => {
+      const gathers = await getGathers()
+      gathers && setGatherList(gathers)
+    }
+    fetchGathers()
+  }, [getGathers])
 
   return (
     <GoogleMapsProvider
