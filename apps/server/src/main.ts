@@ -23,7 +23,6 @@ function printRoutes(
       }
     })
     .filter((item: any) => item !== undefined)
-  console.log(availableRoutes)
 }
 
 async function bootstrap() {
