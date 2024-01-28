@@ -7,10 +7,8 @@ interface Props {
 }
 
 export const GatherGallery: FC<Props> = ({ gatherList }) => {
-  
   return (
     <div className="text-center mb-24 flex flex-col items-center">
-      <h3 className="bold text-xl mb-12 mt-8">Events found</h3>
       <div className="grid gap-16 grid-cols-1 md:grid-cols-2 xl:grid-cols-4">
         {gatherList?.map((gather) => {
           return (
