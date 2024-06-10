@@ -30,7 +30,7 @@ export class ListAllEntitiesDto {
   googlePlaceName?: string
 
   bounds?: string
-  // participantId?: string
+  participantId?: string
 }
 
 export class Participant {
