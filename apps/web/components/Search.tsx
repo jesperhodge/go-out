@@ -1,6 +1,6 @@
 import React from 'react'
 
-export function Search(props) {
+export function Search(props: any) {
   return (
     <>
       <input

@@ -113,6 +113,9 @@ importers:
       '@clerk/nextjs':
         specifier: ^4.29.2
         version: 4.29.2(next@13.5.1)(react-dom@18.2.0)(react@18.2.0)
+      '@clerk/types':
+        specifier: ^3.60.0
+        version: 3.60.0
       '@types/googlemaps':
         specifier: ^3.43.3
         version: 3.43.3

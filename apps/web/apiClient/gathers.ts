@@ -2,6 +2,7 @@ import { Dispatch, SetStateAction } from 'react'
 import { BACKEND_URL } from '@web/constants/base'
 import { Gather, Participant } from '@customTypes/gather'
 import { user } from '@web/app/constants'
+import { UserResource } from '@clerk/types'
 
 const encodeParams = (params: Record<string, any>): string => {
   return Object.keys(params)
@@ -120,13 +121,13 @@ export const createGathersClient = ({
     return data
   }
 
-  const joinGather = async (gatherId: string, newParticipant: Participant) => {
+  const joinGather = async (gatherId: string, user: UserResource) => {
     const response = await makeRequest(
       '/gathers/join',
       {},
       {
         method: 'POST',
-        body: JSON.stringify({ gatherId: gatherId, userId: newParticipant.id }),
+        body: JSON.stringify({ gatherId: gatherId, userId: user.id }),
       },
       getToken,
     )
