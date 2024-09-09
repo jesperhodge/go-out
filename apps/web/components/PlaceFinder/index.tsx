@@ -8,12 +8,9 @@ import { GatherModal } from '../GatherModal'
 import { Search } from '../Search'
 import { DashboardContext } from '@web/context/DashboardContext'
 import { useClient } from '@web/apiClient'
+import { useUser } from '@clerk/nextjs'
 
 const maxNumberOfSuggestions = 5
-const user: Participant = {
-  id: 2,
-  name: 'Jesper Hodge',
-}
 
 interface HandleCreateArgs {
   name: string
@@ -46,6 +43,7 @@ const PlaceFinder: FC = () => {
   // Define state and refs
   const inputRef = useRef<HTMLInputElement | null>(null)
   const timeout = useRef<NodeJS.Timeout | null>(null)
+  const { isLoaded, isSignedIn, user } = useUser()
 
   const [inputValue, setInputValue] = useState<string>('')
   const [suggestions, setSuggestions] = useState<Array<PlaceFinderSuggestion>>([])
@@ -168,6 +166,7 @@ const PlaceFinder: FC = () => {
 
   const handleJoin = async () => {
     if (!selectedGather?.id || !user) return
+    // debugger
 
     const data = await joinGather(selectedGather.id, user)
 

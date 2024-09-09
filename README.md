@@ -26,4 +26,9 @@ A: The features have a lot of overlap, but it should be a very different experie
 - add your Google Maps API key to .env
 - `pnpm install`
 - `pnpm dev` (runs "docker compose up" and local servers)
+- setup your postgres db and add database url to env variables
+- log in to database via `localhost:8080` just by selecting Postgres and
+your user and password, don't fill in the "Database" field
+(just use admin/admin)
+- `cd apps/server` and `pnpx prisma migrate reset`
 - navigate to `localhost:3000`. You may need to refresh one or multiple times until you see google maps load; needs debugging.

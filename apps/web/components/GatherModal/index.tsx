@@ -11,8 +11,8 @@ interface Props {
 }
 export const GatherModal: FC<Props> = ({ setModalOpen, selectedPlace, selectedGather, handleCreate, handleJoin }) => {
   const [name, setName] = useState<string | null>(null)
-  const [description, setDescription] = useState<string | null>(null)
-  const [pictures, setPictures] = useState<string[] | null>(null)
+  const [description, setDescription] = useState<string>('')
+  const [pictures, setPictures] = useState<string[]>([])
   const [valid, setValid] = useState<boolean | null>(null)
   const { availableGathers, setSelectedGather } = useContext(DashboardContext)
 
