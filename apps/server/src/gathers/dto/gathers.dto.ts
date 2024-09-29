@@ -16,7 +16,7 @@ export class GatherWithoutId {
 
 export class JoinGatherDto {
   gatherId: number
-  userId: number
+  userId: string
 }
 
 export class ListAllEntitiesDto {

@@ -100,7 +100,6 @@ export const createGathersClient = ({
         lat: googlePlace.geometry?.location?.lat(),
         lng: googlePlace.geometry?.location?.lng(),
       },
-      participants: [user],
     }
 
     const response = await makeRequest(
