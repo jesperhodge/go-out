@@ -39,7 +39,9 @@ export class GathersController {
   }
 
   @Post('join')
-  async join(@Body() joinGatherDto: JoinGatherDto): Promise<Gather> {
+  async join(@Body() joinGatherDto: JoinGatherDto): Promise<any> {
+    console.log('joinGatherDto', joinGatherDto)
+    // Promise<Gather> {
     return this.gathersService.join(joinGatherDto.gatherId, joinGatherDto.userId)
   }
 }

@@ -1,6 +1,6 @@
 import { Injectable } from '@nestjs/common'
 import { PrismaService } from '@server/prisma.service'
-import { Gather, Prisma } from '@prisma/client'
+import { Gather, User, Prisma } from '@prisma/client'
 import { CreateGatherDto, ListAllEntitiesDto } from './dto/gathers.dto'
 
 const CURRENT_USER_PLACEHOLDER_ID = 1
@@ -117,13 +117,14 @@ export class GathersService {
   }
 
   // TODO: verify that user id corresponds to logged in user
-  async join(gatherId: number, userId: number): Promise<Gather> {
+  async join(gatherId: number, userId: string): Promise<Gather> {
     const result = await this.prisma.gather.update({
       where: { id: gatherId },
       data: {
         participants: {
           connect: {
-            id: userId,
+            // clerkUuid: userId,
+            id: 1,
           },
         },
       },

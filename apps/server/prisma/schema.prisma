@@ -12,6 +12,7 @@ datasource db {
 
 model User {
   id              Int       @default(autoincrement()) @id
+  clerk_uuid      String
   created_at      DateTime  @default(now())
   updated_at      DateTime? @updatedAt
   email           String    @unique
