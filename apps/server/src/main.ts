@@ -2,6 +2,7 @@ import { NestFactory } from '@nestjs/core'
 import { AppModule } from './app.module'
 import { NestExpressApplication } from '@nestjs/platform-express/interfaces'
 import { ValidationPipe } from '@nestjs/common'
+import { clerkMiddleware, requireAuth } from '@clerk/express'
 
 function printRoutes(
   app: NestExpressApplication<
@@ -28,6 +29,8 @@ function printRoutes(
 async function bootstrap() {
   const app = await NestFactory.create<NestExpressApplication>(AppModule)
   app.enableCors({ origin: '*' })
+  app.use(clerkMiddleware())
+  app.use(requireAuth)
   app.useGlobalPipes(new ValidationPipe({ transform: true }))
 
   await app.listen(process.env.PORT || 4000)

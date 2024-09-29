@@ -1,4 +1,5 @@
 import { ClerkExpressRequireAuth } from '@clerk/clerk-sdk-node'
+import { clerkMiddleware } from '@clerk/express'
 import { CanActivate, ExecutionContext, Injectable, UnauthorizedException } from '@nestjs/common'
 import { Observable } from 'rxjs'
 

@@ -10,9 +10,15 @@ importers:
 
   apps/server:
     dependencies:
+      '@clerk/backend':
+        specifier: ^1.13.5
+        version: 1.13.5(react@18.2.0)
       '@clerk/clerk-sdk-node':
         specifier: ^4.13.5
         version: 4.13.5(react@18.2.0)
+      '@clerk/express':
+        specifier: ^1.0.2
+        version: 1.0.2(express@4.18.2)(react@18.2.0)
       '@nestjs/common':
         specifier: ^10.0.0
         version: 10.2.5(class-transformer@0.5.1)(class-validator@0.14.0)(reflect-metadata@0.1.13)(rxjs@7.8.1)
@@ -612,6 +618,20 @@ packages:
       - react
     dev: false
 
+  /@clerk/backend@1.13.5(react@18.2.0):
+    resolution: {integrity: sha512-1ndtoUwQ7jYAG8tMQhUGq+MlvWpnQdOSlk4j0piGeou0drpD0+8jOoBsjp+io4WjN43NJqLlAV6by+b4Y8aTcw==}
+    engines: {node: '>=18.17.0'}
+    dependencies:
+      '@clerk/shared': 2.8.4(react@18.2.0)
+      '@clerk/types': 4.23.0
+      cookie: 0.5.0
+      snakecase-keys: 5.4.4
+      tslib: 2.4.1
+    transitivePeerDependencies:
+      - react
+      - react-dom
+    dev: false
+
   /@clerk/clerk-react@4.30.3(react@18.2.0):
     resolution: {integrity: sha512-bX4fUxGXUrMl8A50TpeUM8PHFKbMHmt7UfJ/NnUQMBN54h9N/NF2eSE2omY1+lDxBJmh/V9EiJZV8S6MwDflzw==}
     engines: {node: '>=14'}
@@ -639,6 +659,22 @@ packages:
       tslib: 2.4.1
     transitivePeerDependencies:
       - react
+    dev: false
+
+  /@clerk/express@1.0.2(express@4.18.2)(react@18.2.0):
+    resolution: {integrity: sha512-9IQVyaVGRFqrUV218f1ZwHeUzbR86BIZk0g3aR6loqTKad/F11pMg7dV13jDXAF3iPZP9hsJUM1VDK4eg6wGUQ==}
+    engines: {node: '>=18.17.0'}
+    peerDependencies:
+      express: ^4.17.0 || ^5.0.0
+    dependencies:
+      '@clerk/backend': 1.13.5(react@18.2.0)
+      '@clerk/shared': 2.8.4(react@18.2.0)
+      '@clerk/types': 4.23.0
+      express: 4.18.2
+      tslib: 2.4.1
+    transitivePeerDependencies:
+      - react
+      - react-dom
     dev: false
 
   /@clerk/nextjs@4.29.2(next@13.5.1)(react-dom@18.2.0)(react@18.2.0):
@@ -675,9 +711,37 @@ packages:
       swr: 2.2.0(react@18.2.0)
     dev: false
 
+  /@clerk/shared@2.8.4(react@18.2.0):
+    resolution: {integrity: sha512-I+V05B/YqEWAaXb+SWb9VFCK6WSjChW01gC9OJxpkvjauNiBtDjFVghodZFg2dxcbwQGQNj6sC1hrf+mcBVBqw==}
+    engines: {node: '>=18.17.0'}
+    requiresBuild: true
+    peerDependencies:
+      react: '>=18 || >=19.0.0-beta'
+      react-dom: '>=18 || >=19.0.0-beta'
+    peerDependenciesMeta:
+      react:
+        optional: true
+      react-dom:
+        optional: true
+    dependencies:
+      '@clerk/types': 4.23.0
+      glob-to-regexp: 0.4.1
+      js-cookie: 3.0.5
+      react: 18.2.0
+      std-env: 3.7.0
+      swr: 2.2.0(react@18.2.0)
+    dev: false
+
   /@clerk/types@3.60.0:
     resolution: {integrity: sha512-f1A16wFh5MtikxEo7o6vAVX7FxpqC1YmzA6c4ugwq5MH8J2mvIM/LwNVIHgNpZkn/s/G+BUhBcJJmUXqajDK2Q==}
     engines: {node: '>=14'}
+    dependencies:
+      csstype: 3.1.1
+    dev: false
+
+  /@clerk/types@4.23.0:
+    resolution: {integrity: sha512-xCAPeKXOt/qAEzhlv35sdNYm9ewoveRMUwVEoGsFIDaeF9N1agCNdzKtCMcHjGZFH4ESnopLmEq2n46aRxPFkA==}
+    engines: {node: '>=18.17.0'}
     dependencies:
       csstype: 3.1.1
     dev: false
@@ -4846,6 +4910,11 @@ packages:
     engines: {node: '>=12'}
     dev: false
 
+  /js-cookie@3.0.5:
+    resolution: {integrity: sha512-cEiJEAEoIbWfCZYKWhVwFuvPX1gETRYPw6LlaTKoxD3s2AkXzkCjnp6h0V77ozyqj0jakteJ4YqDJT830+lVGw==}
+    engines: {node: '>=14'}
+    dev: false
+
   /js-tokens@4.0.0:
     resolution: {integrity: sha512-RdJUflcE3cUzKiMqQgsCu06FPu9UdIJO0beYbPhHN4k6apgJtifcoCtT9bcxOpYBtpD2kCM6Sbzg4CausW/PKQ==}
 
@@ -6283,6 +6352,10 @@ packages:
   /statuses@2.0.1:
     resolution: {integrity: sha512-RwNA9Z/7PrK06rYLIzFMlaF+l73iwpzsqRIFgbMLbTcLD6cOao82TaWefPXQvB2fOC4AjuYSEndS7N/mTCbkdQ==}
     engines: {node: '>= 0.8'}
+
+  /std-env@3.7.0:
+    resolution: {integrity: sha512-JPbdCEQLj1w5GilpiHAx3qJvFndqybBysA3qUOnznweH4QbNYUsW/ea8QzSrnh0vNsezMMw5bcVool8lM0gwzg==}
+    dev: false
 
   /streamsearch@1.1.0:
     resolution: {integrity: sha512-Mcc5wHehp9aXz1ax6bZUyY5afg9u2rv5cqQI3mRrYkGC8rW2hM02jWuwjtL++LS5qinSyhj2QfLyNsuc+VsExg==}
