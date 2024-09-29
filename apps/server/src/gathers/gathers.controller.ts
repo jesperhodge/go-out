@@ -9,13 +9,16 @@ import {
   UsePipes,
   ValidationPipe,
   UseGuards,
+  Req,
 } from '@nestjs/common'
 import { CreateGatherDto, ListAllEntitiesDto, JoinGatherDto } from './dto/gathers.dto'
 import { GathersService } from './gathers.service'
 import { Gather } from '@prisma/client'
 import { AuthGuard } from '@server/auth/auth.guard'
+import { Request } from 'express'
+import { createClerkClient } from '@clerk/backend'
 
-@UseGuards(AuthGuard)
+// @UseGuards(AuthGuard)
 @Controller('gathers')
 export class GathersController {
   constructor(private gathersService: GathersService) {}
@@ -34,7 +37,17 @@ export class GathersController {
   }
 
   @Post()
-  async create(@Body() createGatherDto: CreateGatherDto): Promise<Gather> {
+  async create(@Req() req: Request, @Body() createGatherDto: CreateGatherDto): Promise<Gather> {
+    // const clerkClient = createClerkClient({
+    //   secretKey: process.env.CLERK_SECRET_KEY,
+    //   publishableKey: process.env.CLERK_PUBLISHABLE_KEY,
+    // })
+
+    console.log('request: ', req)
+
+    // // const { isSignedIn } = await clerkClient.authenticateRequest(req)
+    // // console.log('isSignedIn: ', isSignedIn)
+
     return this.gathersService.create(createGatherDto)
   }
 

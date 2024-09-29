@@ -1,13 +1,26 @@
-import { Injectable } from '@nestjs/common'
+import { Injectable, Scope, Inject } from '@nestjs/common'
+import { REQUEST } from '@nestjs/core'
 import { PrismaService } from '@server/prisma.service'
 import { Gather, User, Prisma } from '@prisma/client'
 import { CreateGatherDto, ListAllEntitiesDto } from './dto/gathers.dto'
+import { ClerkClient, createClerkClient } from '@clerk/backend'
+import { Request } from 'express'
 
 const CURRENT_USER_PLACEHOLDER_ID = 1
 
-@Injectable()
+@Injectable({ scope: Scope.REQUEST })
 export class GathersService {
-  constructor(private prisma: PrismaService) {}
+  clerkClient: ClerkClient
+
+  constructor(
+    private prisma: PrismaService,
+    @Inject(REQUEST) private request: Request,
+  ) {
+    // this.clerkClient = createClerkClient({
+    //   secretKey: process.env.CLERK_SECRET_KEY,
+    //   publishableKey: process.env.CLERK_PUBLISHABLE_KEY,
+    // })
+  }
 
   async create(gatherDto: CreateGatherDto): Promise<Gather> {
     // extract lat and lng from location string "(lat, lng)".
@@ -15,6 +28,12 @@ export class GathersService {
     const location = gatherDto.gather.googlePlace.location
     const lat: number | undefined = location ? parseFloat(location.split(',')[0].slice(1)) : undefined
     const lng: number | undefined = location ? parseFloat(location.split(',')[1].slice(0, -1)) : undefined
+
+    // const { isSignedIn } = await this.clerkClient.authenticateRequest(this.request)
+    // console.log('isSignedIn: ', isSignedIn)
+    // const session = await clerkClient.authenticateRequest()
+    // console.log('session:')
+    // console.log(session)
 
     const data = {
       name: gatherDto.gather.name || 'Placeholder',
