@@ -8,19 +8,18 @@ import { Request } from 'express'
 
 const CURRENT_USER_PLACEHOLDER_ID = 1
 
+interface RequestWithAuth extends Request {
+  auth: Record<string, any>
+}
+
 @Injectable({ scope: Scope.REQUEST })
 export class GathersService {
   clerkClient: ClerkClient
 
   constructor(
     private prisma: PrismaService,
-    @Inject(REQUEST) private request: Request,
-  ) {
-    // this.clerkClient = createClerkClient({
-    //   secretKey: process.env.CLERK_SECRET_KEY,
-    //   publishableKey: process.env.CLERK_PUBLISHABLE_KEY,
-    // })
-  }
+    @Inject(REQUEST) private request: RequestWithAuth,
+  ) {}
 
   async create(gatherDto: CreateGatherDto): Promise<Gather> {
     // extract lat and lng from location string "(lat, lng)".
@@ -29,11 +28,8 @@ export class GathersService {
     const lat: number | undefined = location ? parseFloat(location.split(',')[0].slice(1)) : undefined
     const lng: number | undefined = location ? parseFloat(location.split(',')[1].slice(0, -1)) : undefined
 
-    // const { isSignedIn } = await this.clerkClient.authenticateRequest(this.request)
-    // console.log('isSignedIn: ', isSignedIn)
-    // const session = await clerkClient.authenticateRequest()
-    // console.log('session:')
-    // console.log(session)
+    const clerkUuid = this.request.auth.userId
+    console.log('clerkUuid: ', clerkUuid)
 
     const data = {
       name: gatherDto.gather.name || 'Placeholder',
@@ -41,10 +37,10 @@ export class GathersService {
       description: gatherDto.gather.description,
       pictures: gatherDto.gather.pictures || [],
       participants: {
-        connect: [{ id: CURRENT_USER_PLACEHOLDER_ID }],
+        connect: [{ clerkUuid }],
       },
       creator: {
-        connect: { id: CURRENT_USER_PLACEHOLDER_ID },
+        connect: { clerkUuid },
       },
       googlePlace: {
         connectOrCreate: {

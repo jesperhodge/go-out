@@ -38,15 +38,7 @@ export class GathersController {
 
   @Post()
   async create(@Req() req: Request, @Body() createGatherDto: CreateGatherDto): Promise<Gather> {
-    // const clerkClient = createClerkClient({
-    //   secretKey: process.env.CLERK_SECRET_KEY,
-    //   publishableKey: process.env.CLERK_PUBLISHABLE_KEY,
-    // })
-
     console.log('request: ', req)
-
-    // // const { isSignedIn } = await clerkClient.authenticateRequest(req)
-    // // console.log('isSignedIn: ', isSignedIn)
 
     return this.gathersService.create(createGatherDto)
   }
