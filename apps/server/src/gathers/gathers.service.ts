@@ -24,12 +24,12 @@ export class GathersService {
   async create(gatherDto: CreateGatherDto): Promise<Gather> {
     // extract lat and lng from location string "(lat, lng)".
     // For example, "(37.422, -122.084)" => [37.422, -122.084]
+    const clerkUuid: string = this.request.auth.userId
+    console.log('clerkUuid: ', clerkUuid)
+
     const location = gatherDto.gather.googlePlace.location
     const lat: number | undefined = location ? parseFloat(location.split(',')[0].slice(1)) : undefined
     const lng: number | undefined = location ? parseFloat(location.split(',')[1].slice(0, -1)) : undefined
-
-    const clerkUuid: string = this.request.auth.userId
-    console.log('clerkUuid: ', clerkUuid)
 
     const data = {
       name: gatherDto.gather.name || 'Placeholder',

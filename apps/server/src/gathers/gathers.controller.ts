@@ -18,7 +18,7 @@ import { AuthGuard } from '@server/auth/auth.guard'
 import { Request } from 'express'
 import { createClerkClient } from '@clerk/backend'
 
-// @UseGuards(AuthGuard)
+@UseGuards(AuthGuard)
 @Controller('gathers')
 export class GathersController {
   constructor(private gathersService: GathersService) {}
