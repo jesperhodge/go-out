@@ -32,3 +32,4 @@ your user and password, don't fill in the "Database" field
 (just use admin/admin)
 - `cd apps/server` and `pnpx prisma migrate reset`
 - navigate to `localhost:3000`. You may need to refresh one or multiple times until you see google maps load; needs debugging.
+- In order to sync user creation between the external identity provider, clerk, you need to follow steps 1-3 of the instructions at https://clerk.com/docs/integrations/webhooks/sync-data. The default port for this backend for ngrok to forward to is 4000. The url to configure for the clerk webhook is `<ngrok-url>/api/webhooks/createuser`.
