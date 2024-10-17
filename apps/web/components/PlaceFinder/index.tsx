@@ -168,7 +168,7 @@ const PlaceFinder: FC = () => {
     if (!selectedGather?.id || !user) return
     // debugger
 
-    const data = await joinGather(selectedGather.id, user)
+    const data = await joinGather(selectedGather.id)
 
     setSelectedGather({
       ...data,

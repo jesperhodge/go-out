@@ -32,7 +32,7 @@ async function bootstrap() {
   })
   app.enableCors({ origin: '*' })
   app.use(clerkMiddleware())
-  // app.useGlobalPipes(new ValidationPipe({ transform: true }))
+  app.useGlobalPipes(new ValidationPipe({ transform: true }))
 
   await app.listen(process.env.PORT || 4000)
 

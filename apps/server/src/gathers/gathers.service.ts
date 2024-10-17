@@ -21,11 +21,15 @@ export class GathersService {
     @Inject(REQUEST) private request: RequestWithAuth,
   ) {}
 
+  private currentUserWhere(): { clerk_uuid: string } {
+    return {
+      clerk_uuid: this.request.auth.userId,
+    }
+  }
+
   async create(gatherDto: CreateGatherDto): Promise<Gather> {
     // extract lat and lng from location string "(lat, lng)".
     // For example, "(37.422, -122.084)" => [37.422, -122.084]
-    const clerkUuid: string = this.request.auth.userId
-    console.log('clerkUuid: ', clerkUuid)
 
     const location = gatherDto.gather.googlePlace.location
     const lat: number | undefined = location ? parseFloat(location.split(',')[0].slice(1)) : undefined
@@ -37,10 +41,10 @@ export class GathersService {
       description: gatherDto.gather.description,
       pictures: gatherDto.gather.pictures || [],
       participants: {
-        connect: [{ clerk_uuid: clerkUuid }],
+        connect: [this.currentUserWhere()],
       },
       creator: {
-        connect: { clerk_uuid: clerkUuid },
+        connect: this.currentUserWhere(),
       },
       googlePlace: {
         connectOrCreate: {
@@ -132,15 +136,13 @@ export class GathersService {
   }
 
   // TODO: verify that user id corresponds to logged in user
-  async join(gatherId: number, userId: string): Promise<Gather> {
+  async join(gatherId: number): Promise<Gather> {
+    console.log('gatherId: ', gatherId)
     const result = await this.prisma.gather.update({
       where: { id: gatherId },
       data: {
         participants: {
-          connect: {
-            // clerkUuid: userId,
-            id: 1,
-          },
+          connect: this.currentUserWhere(),
         },
       },
       include: {

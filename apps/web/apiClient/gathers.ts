@@ -16,9 +16,9 @@ const makeRequest = async (
   options: Record<string, any>,
   getToken: () => Promise<string | null>,
 ) => {
-  const queryString = encodeParams(params)
+  const queryString = `?${encodeParams(params)}`
   const token = await getToken()
-  const response = await fetch(`${BACKEND_URL}${path}?${queryString}`, {
+  const response = await fetch(`${BACKEND_URL}${path}${queryString}`, {
     ...options,
     headers: {
       ...(options.headers || {}),
@@ -120,13 +120,16 @@ export const createGathersClient = ({
     return data
   }
 
-  const joinGather = async (gatherId: string, user: UserResource) => {
+  const joinGather = async (gatherId: string) => {
     const response = await makeRequest(
       '/gathers/join',
       {},
       {
         method: 'POST',
-        body: JSON.stringify({ gatherId: gatherId, userId: user.id }),
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({ gatherId: gatherId }),
       },
       getToken,
     )

@@ -2,6 +2,8 @@
 //   gather: Omit<Gather, 'id'>
 // }
 
+import { IsNotEmpty } from 'class-validator'
+
 export class CreateGatherDto {
   gather: GatherWithoutId
 }
@@ -15,8 +17,8 @@ export class GatherWithoutId {
 }
 
 export class JoinGatherDto {
+  @IsNotEmpty()
   gatherId: number
-  userId: string
 }
 
 export class ListAllEntitiesDto {

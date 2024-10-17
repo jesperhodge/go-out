@@ -25,7 +25,7 @@ export class GathersController {
 
   @Get()
   async findAll(@Query() query: ListAllEntitiesDto): Promise<Gather[]> {
-    return this.gathersService.findAll(query)
+    return await this.gathersService.findAll(query)
   }
 
   @Get(':id')
@@ -40,13 +40,13 @@ export class GathersController {
   async create(@Req() req: Request, @Body() createGatherDto: CreateGatherDto): Promise<Gather> {
     console.log('request: ', req)
 
-    return this.gathersService.create(createGatherDto)
+    return await this.gathersService.create(createGatherDto)
   }
 
   @Post('join')
-  async join(@Body() joinGatherDto: JoinGatherDto): Promise<any> {
+  async join(@Req() req: Request, @Body() joinGatherDto: JoinGatherDto): Promise<any> {
     console.log('joinGatherDto', joinGatherDto)
     // Promise<Gather> {
-    return this.gathersService.join(joinGatherDto.gatherId, joinGatherDto.userId)
+    return await this.gathersService.join(joinGatherDto.gatherId)
   }
 }
