@@ -1,8 +1,8 @@
-import { Controller, Get } from '@nestjs/common'
+import { Controller, Get, Post } from '@nestjs/common'
 
 @Controller('api')
 export class ApiController {
-  @Get('webhooks/createUser')
+  @Post('webhooks/createuser')
   async createUser() {
     console.log('created user!')
   }
