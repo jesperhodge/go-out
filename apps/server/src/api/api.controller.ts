@@ -1,17 +1,21 @@
-import { UserJSON } from '@clerk/express'
+import { EmailAddressJSON, UserJSON } from '@clerk/express'
 import {
   BadRequestException,
   Body,
   Controller,
   Get,
+  InternalServerErrorException,
   Post,
   RawBodyRequest,
   Req,
   UsePipes,
   ValidationPipe,
 } from '@nestjs/common'
+import { UsersService } from '@server/users/users.service'
 import { Request as ExpressRequest } from 'express'
 import { Webhook } from 'svix'
+
+const USER_CREATED_EVENT_TYPE = 'user.created'
 
 interface ClerkWebhookEvent {
   type: string
@@ -20,6 +24,8 @@ interface ClerkWebhookEvent {
 
 @Controller('api')
 export class ApiController {
+  constructor(private readonly usersService: UsersService) {}
+
   @Post('webhooks/createuser')
   async createUser(@Req() req: RawBodyRequest<ExpressRequest>) {
     // You can find this in the Clerk Dashboard -> Webhooks -> choose the webhook
@@ -68,16 +74,32 @@ export class ApiController {
       throw new BadRequestException('Error verifying webhook', { cause: err })
     }
 
-    // Do something with the payload
-    // For this guide, you simply log the payload to the console
-    const { id } = evt.data
-    const eventType = evt.type
-    console.log(`Webhook with an ID of ${id} and type of ${eventType}`)
-    console.log('Webhook body:', evt.data)
+    if (evt.type !== USER_CREATED_EVENT_TYPE) {
+      throw new BadRequestException(`expected event type "${USER_CREATED_EVENT_TYPE}"`)
+    }
 
-    return {
-      success: true,
-      message: 'Webhook received',
+    const { first_name, last_name, id, image_url, email_addresses, primary_email_address_id }: UserJSON = evt.data
+    const email: string | undefined = email_addresses.find(
+      (email: EmailAddressJSON) => email?.id === primary_email_address_id,
+    )?.email_address
+
+    if (!email) {
+      throw new BadRequestException(`missing primary email address`)
+    }
+
+    const createUserDto = {
+      name: `${first_name} ${last_name}`,
+      clerkUuid: id,
+      email,
+    }
+
+    if (await this.usersService.createUser(createUserDto)) {
+      return {
+        success: true,
+        message: 'Webhook received and user created',
+      }
+    } else {
+      throw new InternalServerErrorException('Webhook received, but encountered error when attempting to create user')
     }
   }
 }
