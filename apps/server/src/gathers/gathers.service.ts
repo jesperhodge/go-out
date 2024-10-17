@@ -28,7 +28,7 @@ export class GathersService {
     const lat: number | undefined = location ? parseFloat(location.split(',')[0].slice(1)) : undefined
     const lng: number | undefined = location ? parseFloat(location.split(',')[1].slice(0, -1)) : undefined
 
-    const clerkUuid = this.request.auth.userId
+    const clerkUuid: string = this.request.auth.userId
     console.log('clerkUuid: ', clerkUuid)
 
     const data = {
@@ -37,10 +37,10 @@ export class GathersService {
       description: gatherDto.gather.description,
       pictures: gatherDto.gather.pictures || [],
       participants: {
-        connect: [{ clerkUuid }],
+        connect: [{ clerk_uuid: clerkUuid }],
       },
       creator: {
-        connect: { clerkUuid },
+        connect: { clerk_uuid: clerkUuid },
       },
       googlePlace: {
         connectOrCreate: {
