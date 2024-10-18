@@ -18,7 +18,8 @@ const makeRequest = async (
 ) => {
   const queryString = `?${encodeParams(params)}`
   const token = await getToken()
-  const response = await fetch(`${BACKEND_URL}${path}${queryString}`, {
+  const backendUrl = process.env.NEXT_PUBLIC_BACKEND_URL
+  const response = await fetch(`${backendUrl}${path}${queryString}`, {
     ...options,
     headers: {
       ...(options.headers || {}),
