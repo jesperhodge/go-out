@@ -11,7 +11,7 @@ import {
   UsePipes,
   ValidationPipe,
 } from '@nestjs/common'
-import { UsersService } from '@server/users/users.service'
+import { UsersService } from '~/users/users.service'
 import { Request as ExpressRequest } from 'express'
 import { Webhook } from 'svix'
 

@@ -1,6 +1,6 @@
 import { Module } from '@nestjs/common'
 import { ApiController } from './api.controller'
-import { UsersModule } from '@server/users/users.module'
+import { UsersModule } from '~/users/users.module'
 
 @Module({
   controllers: [ApiController],

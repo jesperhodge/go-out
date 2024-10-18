@@ -5,7 +5,7 @@ FROM node:18-alpine
 WORKDIR /app
 
 # Copy the pnpm-lock.yaml from the parent directory
-COPY ./docker_build/pnpm-lock.yaml ./
+COPY pnpm-lock.yaml ./
 
 # Install pnpm
 RUN npm install -g pnpm
@@ -19,6 +19,7 @@ RUN pnpm install
 # Copy the rest of the application code
 COPY . .
 
+RUN pnpm run prisma:generate
 # Build the NestJS application
 RUN pnpm run build
 

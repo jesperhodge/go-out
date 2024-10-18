@@ -1,6 +1,6 @@
 import { Injectable, Scope, Inject } from '@nestjs/common'
 import { REQUEST } from '@nestjs/core'
-import { PrismaService } from '@server/prisma.service'
+import { PrismaService } from '~/prisma.service'
 import { Gather, User, Prisma } from '@prisma/client'
 import { CreateGatherDto, ListAllEntitiesDto } from './dto/gathers.dto'
 import { ClerkClient, createClerkClient } from '@clerk/backend'

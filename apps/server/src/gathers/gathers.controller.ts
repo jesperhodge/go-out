@@ -14,7 +14,7 @@ import {
 import { CreateGatherDto, ListAllEntitiesDto, JoinGatherDto } from './dto/gathers.dto'
 import { GathersService } from './gathers.service'
 import { Gather } from '@prisma/client'
-import { AuthGuard } from '@server/auth/auth.guard'
+import { AuthGuard } from '~/auth/auth.guard'
 import { Request } from 'express'
 import { createClerkClient } from '@clerk/backend'
 
